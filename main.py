@@ -1,6 +1,5 @@
 from dataset.twitter_dataset import TwitterDataModule
 
-import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 
 if __name__ == "__main__":
