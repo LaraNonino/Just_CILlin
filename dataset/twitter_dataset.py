@@ -13,32 +13,35 @@ POSITIVE = 1
 class TwitterDataModule(L.LightningDataModule):
     def __init__(
         self,
-        path_to_train_positive_tweets: str,
-        path_to_train_negative_tweets: str,
-        path_to_test_tweets: str,
-        transform: Callable,
+        path_train_pos: str,
+        path_train_neg: str,
+        path_predict: str,
+        convert_to_features: Callable,
         tokenizer: Callable=None,
         val_percentage: float=0.1,
         batch_size: int=32,
     ) -> None:
         super().__init__()
-        self.path_to_train_positive_tweets = path_to_train_positive_tweets
-        self.path_to_train_negative_tweets = path_to_train_negative_tweets
-        self.path_to_test_tweets = path_to_test_tweets
+        self.path_train_pos = path_train_pos
+        self.path_train_neg = path_train_neg
+        self.path_predict = path_predict
         self.val_percentage = val_percentage
-        self.transform = transform
+        self.convert_to_features = convert_to_features
         self.tokenizer = tokenizer
         self.batch_size = batch_size
 
     def prepare_data(self) -> None:
         """Downloads twitter-dataset and saves data tensors on disk"""
         # train data
-        positive = self._load_tweets(self.path_to_train_positive_tweets)
-        negative = self._load_tweets(self.path_to_train_negative_tweets)
+        positive = self._load_tweets(self.path_train_pos)[:10]
+        negative = self._load_tweets(self.path_train_neg)[:10]
         # tokenizer
-        tweets = self.transform(np.array(positive + negative))
+        tweets = self.convert_to_features(np.array(positive + negative))
+        if type(tweets) is not torch.Tensor:
+            tweets = torch.from_numpy(tweets.todense())
         # if data_augmentation: ...
-        labels = torch.tensor([POSITIVE] * len(positive) + [NEGATIVE] * len(negative))
+        # labels = torch.tensor([POSITIVE] * len(positive) + [NEGATIVE] * len(negative)).unsqueeze(1)
+        labels = torch.tensor([POSITIVE] * 10 + [NEGATIVE] * 10).unsqueeze(1)
         train_data = {
             'tweets': tweets,
             'labels': labels
@@ -46,8 +49,8 @@ class TwitterDataModule(L.LightningDataModule):
         torch.save(train_data, 'twitter_train_data.pt')
 
         # test data
-        test_data = self._load_tweets(self.path_to_test_tweets)
-        test_data = self.transform(test_data)
+        test_data = self._load_tweets(self.path_predict)[:10]
+        test_data = self.convert_to_features(test_data)
         torch.save(test_data, 'twitter_test_data.pt')
 
     def setup(self, stage: str=None) -> None:
@@ -63,10 +66,10 @@ class TwitterDataModule(L.LightningDataModule):
             train_indices = shuffled_indices[:split]
             val_indices = shuffled_indices[split:]
 
-            self.train_data = tweets[train_indices], labels[train_indices]
-            self.val_data = tweets[val_indices], labels[val_indices]
-
-        if stage is None or stage == "test":
+            self.train_data = torch.hstack((tweets[train_indices], labels[train_indices]))
+            self.val_data = torch.hstack((tweets[val_indices], labels[val_indices]))
+            
+        if stage is None or stage == "predict":
             self.test_data = torch.load('twitter_test_data.pt')
     
     def _load_tweets(self, path: str):
