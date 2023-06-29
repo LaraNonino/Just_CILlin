@@ -14,12 +14,13 @@ if __name__ == "__main__":
         CountVectorizer(max_features=500).fit_transform,
         batch_size=5
     )
-    dm.prepare_data()
+    # dm.prepare_data()
     dm.setup(stage="fit")
-    model = torch.nn.Linear(174, 2)
-    net = SentimentAnalysisNet(
-        model,
-        lr=10e-3,
-    )
-    trainer = L.Trainer(max_epochs=2)
-    trainer.fit(model=net, datamodule=dm)
+    print("done")
+    # model = torch.nn.Linear(174, 2)
+    # net = SentimentAnalysisNet(
+    #     model,
+    #     lr=10e-3,
+    # )
+    # trainer = L.Trainer(max_epochs=2)
+    # trainer.fit(model=net, datamodule=dm)

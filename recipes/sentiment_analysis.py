@@ -2,7 +2,6 @@ import pytorch_lightning as L
 
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 from typing import Any, Callable
 
@@ -23,7 +22,7 @@ class SentimentAnalysisNet(L.LightningModule):
     def training_step(self, batch, batch_idx):
         x, y = batch[:, :-1], batch[:, -1]
         y_hat = self(x)
-        loss = F.cross_entropy(y_hat, y)
+        loss = nn.BCELoss(y_hat, y)
         print(loss)
         return loss
     
