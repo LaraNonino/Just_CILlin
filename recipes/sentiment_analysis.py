@@ -8,7 +8,7 @@ class SentimentAnalysisNet(L.LightningModule):
     def __init__(
         self, 
         model: nn.Module,
-        loss: nn.Module=nn.BCELoss(),
+        criterion: nn.Module=nn.BCELoss(),
         lr: float=10e-3,
         sched_step_size: int=None,
         sched_gamma: float=None,
@@ -16,7 +16,7 @@ class SentimentAnalysisNet(L.LightningModule):
         super().__init__()
 
         self.model = model
-        self.loss = loss
+        self.criterion = criterion
         self.accuracy = torchmetrics.Accuracy()
         
         self.lr = lr
@@ -33,11 +33,11 @@ class SentimentAnalysisNet(L.LightningModule):
     def training_step(self, batch, batch_idx):
         x, y = batch[:, :-1], batch[:, -1]
         y_hat = self(x)
-        loss = self.loss(y_hat, y)
+        loss = self.criterion(y_hat, y)
         return loss
     
     def configure_optimizers(self):
-         if self.scheduler is not None:
+        if self.scheduler is not None:
             return [self.optimizer], [self.scheduler]
         return [self.optimizer]
     
