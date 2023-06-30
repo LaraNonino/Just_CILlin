@@ -1,5 +1,6 @@
 numpy
 torch
 torchvision
+torchmetrics
 pytorch_lightning
 scikit-learn

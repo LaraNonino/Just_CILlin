@@ -38,9 +38,10 @@ class TwitterDataModule(L.LightningDataModule):
             
             positive = self._load_tweets(self.path_train_pos)
             negative = self._load_tweets(self.path_train_neg)
+            tweets = np.array(positive + negative)
             # tokenizer
-            tweets = self.convert_to_features(np.array(positive + negative))
-            if type(tweets) is not torch.Tensor:
+            tweets = self.convert_to_features(tweets)
+            if type(tweets) is not torch.Tensor: # CountVectorizer
                 tweets = torch.from_numpy(tweets.todense())
             # if data_augmentation: ...
             labels = torch.tensor([POSITIVE] * len(positive) + [NEGATIVE] * len(negative)).unsqueeze(1)
@@ -48,7 +49,7 @@ class TwitterDataModule(L.LightningDataModule):
             # train, val split
             np.random.seed(1) # reproducibility
             shuffled_indices = np.random.permutation(tweets.shape[0])
-            split = int((1-self.val_percentage) * tweets.shape[0])
+            split = int((1 - self.val_percentage) * tweets.shape[0])
             train_indices = shuffled_indices[:split]
             val_indices = shuffled_indices[split:]
 
