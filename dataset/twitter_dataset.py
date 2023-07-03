@@ -48,8 +48,8 @@ class TwitterDataModule(L.LightningDataModule):
     def setup(self, stage: str=None) -> None:
         """Recovers data from disk and performs train/val split"""
         if stage is None or stage == "fit":
-            positive = self._load_tweets(self.path_train_pos)[:10]
-            negative = self._load_tweets(self.path_train_neg)[:10]
+            positive = self._load_tweets(self.path_train_pos)
+            negative = self._load_tweets(self.path_train_neg)
             tweets = np.array(positive + negative)
             if self.tokenizer is not None:
                 tweets = self.tokenizer(tweets, **self.tokenizer_kwargs)
@@ -58,7 +58,7 @@ class TwitterDataModule(L.LightningDataModule):
                 tweets = torch.from_numpy(tweets.todense()).float()
             # else: tweets: torch.tensor
 
-            labels = torch.tensor([POSITIVE] * len(positive) + [NEGATIVE] * len(negative)).unsqueeze(1)
+            labels = torch.tensor([POSITIVE] * len(positive) + [NEGATIVE] * len(negative), dtype=torch.float).unsqueeze(1)
 
             # train, val split
             np.random.seed(1) # reproducibility

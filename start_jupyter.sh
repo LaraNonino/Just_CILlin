@@ -1,6 +1,6 @@
 #!/bin/bash
   
-#SBATCH -n 4
+#SBATCH --ntasks-per-node=4
 #SBATCH --time=4:00:00
 #SBATCH --mem-per-cpu=5G
 #SBATCH --job-name=jupyter

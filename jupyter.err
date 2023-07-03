@@ -1,0 +1,102 @@
+
+The following have been reloaded with a version change:
+  1) gcc/4.8.5 => gcc/8.2.0
+
+[W 2023-07-03 17:34:21.189 LabApp] 'port_retries' has moved from NotebookApp to ServerApp. This config will be passed to ServerApp. Be sure to update your config before our next release.
+[I 2023-07-03 17:34:21.210 ServerApp] jupyterlab | extension was successfully linked.
+[I 2023-07-03 17:34:21.250 ServerApp] nbclassic | extension was successfully linked.
+[I 2023-07-03 17:34:25.632 ServerApp] notebook_shim | extension was successfully linked.
+[I 2023-07-03 17:34:26.079 ServerApp] notebook_shim | extension was successfully loaded.
+[I 2023-07-03 17:34:26.081 LabApp] JupyterLab extension loaded from /cluster/apps/nss/gcc-8.2.0/python/3.10.4/x86_64/lib64/python3.10/site-packages/jupyterlab
+[I 2023-07-03 17:34:26.081 LabApp] JupyterLab application directory is /cluster/apps/nss/gcc-8.2.0/python/3.10.4/x86_64/share/jupyter/lab
+[I 2023-07-03 17:34:26.093 ServerApp] jupyterlab | extension was successfully loaded.
+[I 2023-07-03 17:34:26.238 ServerApp] nbclassic | extension was successfully loaded.
+[I 2023-07-03 17:34:26.239 ServerApp] Serving notebooks from local directory: /cluster/home/amohame/cil/Just_CILlin
+[I 2023-07-03 17:34:26.239 ServerApp] Jupyter Server 1.17.0 is running at:
+[I 2023-07-03 17:34:26.239 ServerApp] http://10.204.97.47:8888/lab?token=3b3a9840c9c82ccea33b64dc109edfeccac8b4c1074d54b6
+[I 2023-07-03 17:34:26.239 ServerApp]  or http://127.0.0.1:8888/lab?token=3b3a9840c9c82ccea33b64dc109edfeccac8b4c1074d54b6
+[I 2023-07-03 17:34:26.239 ServerApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+[C 2023-07-03 17:34:26.281 ServerApp] 
+    
+    To access the server, open this file in a browser:
+        file:///cluster/home/amohame/.local/share/jupyter/runtime/jpserver-6321-open.html
+    Or copy and paste one of these URLs:
+        http://10.204.97.47:8888/lab?token=3b3a9840c9c82ccea33b64dc109edfeccac8b4c1074d54b6
+     or http://127.0.0.1:8888/lab?token=3b3a9840c9c82ccea33b64dc109edfeccac8b4c1074d54b6
+[I 2023-07-03 17:35:41.657 LabApp] Build is up to date
+[I 2023-07-03 17:35:46.572 ServerApp] Kernel started: 577f5056-8605-4ee0-a9f8-88a8bd9f2405
+[IPKernelApp] ERROR | No such comm target registered: jupyter.widget.control
+[IPKernelApp] WARNING | No such comm: 1e0755dc-0ac9-4a2d-9409-1b867d2d3975
+[I 2023-07-03 17:37:46.102 ServerApp] Saving file at /main.ipynb
+[I 2023-07-03 17:39:46.497 ServerApp] Saving file at /main.ipynb
+[I 2023-07-03 17:45:24.921 ServerApp] Saving file at /models/rnn.py
+[I 2023-07-03 17:45:32.043 ServerApp] Saving file at /models/rnn.py
+[I 2023-07-03 17:45:47.550 ServerApp] Saving file at /main.ipynb
+[I 2023-07-03 17:47:47.922 ServerApp] Saving file at /main.ipynb
+[I 2023-07-03 17:48:09.363 ServerApp] Saving file at /main.ipynb
+[I 2023-07-03 17:50:10.560 ServerApp] Saving file at /main.ipynb
+[I 2023-07-03 18:16:22.877 ServerApp] Saving file at /models/rnn.py
+[I 2023-07-03 18:18:30.580 ServerApp] Saving file at /main.ipynb
+[I 2023-07-03 18:19:04.235 ServerApp] Saving file at /models/rnn.py
+[I 2023-07-03 18:19:07.598 ServerApp] Saving file at /models/rnn.py
+[I 2023-07-03 18:19:50.092 ServerApp] Saving file at /main.ipynb
+[I 2023-07-03 18:20:15.707 ServerApp] Saving file at /main.ipynb
+[I 2023-07-03 18:20:20.326 ServerApp] Saving file at /main.ipynb
+[I 2023-07-03 18:20:30.936 ServerApp] Saving file at /main.ipynb
+[I 2023-07-03 18:22:31.361 ServerApp] Saving file at /main.ipynb
+[I 2023-07-03 18:22:47.100 ServerApp] Saving file at /models/rnn.py
+[I 2023-07-03 18:23:37.093 ServerApp] Saving file at /main.ipynb
+[I 2023-07-03 18:25:37.563 ServerApp] Saving file at /main.ipynb
+[I 2023-07-03 18:27:18.864 ServerApp] Saving file at /main.ipynb
+[I 2023-07-03 18:29:19.212 ServerApp] Saving file at /main.ipynb
+[I 2023-07-03 18:31:19.552 ServerApp] Saving file at /main.ipynb
+[I 2023-07-03 18:33:19.912 ServerApp] Saving file at /main.ipynb
+[I 2023-07-03 18:33:54.693 ServerApp] Saving file at /dataset/twitter_dataset.py
+[I 2023-07-03 18:34:02.749 ServerApp] Saving file at /main.ipynb
+[I 2023-07-03 18:35:37.146 ServerApp] Saving file at /main.ipynb
+[I 2023-07-03 18:35:45.530 ServerApp] Saving file at /main.ipynb
+slurmstepd: error: poll(): Bad address
+[I 2023-07-03 18:36:10.573 ServerApp] AsyncIOLoopKernelRestarter: restarting kernel (1/5), keep random ports
+[W 2023-07-03 18:36:10.586 ServerApp] kernel 577f5056-8605-4ee0-a9f8-88a8bd9f2405 restarted
+[W 2023-07-03 18:36:10.599 ServerApp] kernel 577f5056-8605-4ee0-a9f8-88a8bd9f2405 restarted
+[I 2023-07-03 18:36:10.752 ServerApp] Starting buffering for 577f5056-8605-4ee0-a9f8-88a8bd9f2405:e57db61e-fb31-4eea-86e1-a2e89fcf7dd2
+[I 2023-07-03 18:36:16.796 ServerApp] Kernel started: 504ccbfd-8d33-4c54-a118-f40c0d744271
+[I 2023-07-03 18:36:16.810 ServerApp] Kernel shutdown: 577f5056-8605-4ee0-a9f8-88a8bd9f2405
+Traceback (most recent call last):
+  File "/cluster/apps/nss/gcc-8.2.0/python/3.10.4/x86_64/lib64/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/cluster/apps/nss/gcc-8.2.0/python/3.10.4/x86_64/lib64/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/cluster/apps/nss/gcc-8.2.0/python/3.10.4/x86_64/lib64/python3.10/site-packages/ipykernel_launcher.py", line 15, in <module>
+    from ipykernel import kernelapp as app
+  File "/cluster/apps/nss/gcc-8.2.0/python/3.10.4/x86_64/lib64/python3.10/site-packages/ipykernel/kernelapp.py", line 18, in <module>
+    from IPython.core.application import (
+  File "/cluster/apps/nss/gcc-8.2.0/python/3.10.4/x86_64/lib64/python3.10/site-packages/IPython/__init__.py", line 53, in <module>
+    from .terminal.embed import embed
+  File "/cluster/apps/nss/gcc-8.2.0/python/3.10.4/x86_64/lib64/python3.10/site-packages/IPython/terminal/embed.py", line 16, in <module>
+    from IPython.terminal.interactiveshell import TerminalInteractiveShell
+  File "/cluster/apps/nss/gcc-8.2.0/python/3.10.4/x86_64/lib64/python3.10/site-packages/IPython/terminal/interactiveshell.py", line 46, in <module>
+    from .debugger import TerminalPdb, Pdb
+  File "/cluster/apps/nss/gcc-8.2.0/python/3.10.4/x86_64/lib64/python3.10/site-packages/IPython/terminal/debugger.py", line 6, in <module>
+    from IPython.core.completer import IPCompleter
+  File "/cluster/apps/nss/gcc-8.2.0/python/3.10.4/x86_64/lib64/python3.10/site-packages/IPython/core/completer.py", line 149, in <module>
+    import jedi
+  File "/cluster/apps/nss/gcc-8.2.0/python/3.10.4/x86_64/lib64/python3.10/site-packages/jedi/__init__.py", line 32, in <module>
+    from jedi.api import Script, Interpreter, set_debug_function, preload_module
+  File "/cluster/apps/nss/gcc-8.2.0/python/3.10.4/x86_64/lib64/python3.10/site-packages/jedi/api/__init__.py", line 13, in <module>
+    import parso
+  File "/cluster/apps/nss/gcc-8.2.0/python/3.10.4/x86_64/lib64/python3.10/site-packages/parso/__init__.py", line 42, in <module>
+    from parso.grammar import Grammar, load_grammar
+  File "<frozen importlib._bootstrap>", line 1027, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1006, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 688, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 879, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 975, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1074, in get_data
+KeyboardInterrupt
+[I 2023-07-03 18:37:45.843 ServerApp] Saving file at /main.ipynb
+[I 2023-07-03 18:37:47.177 ServerApp] Saving file at /dataset/twitter_dataset.py
+[I 2023-07-03 18:39:46.195 ServerApp] Saving file at /main.ipynb
+[W 2023-07-03 18:48:34.752 ServerApp] WebSocket ping timeout after 119868 ms.
+[W 2023-07-03 18:48:34.914 ServerApp] WebSocket ping timeout after 119946 ms.
+[I 2023-07-03 18:48:39.915 ServerApp] Starting buffering for 504ccbfd-8d33-4c54-a118-f40c0d744271:e57db61e-fb31-4eea-86e1-a2e89fcf7dd2

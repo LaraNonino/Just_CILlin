@@ -72,31 +72,32 @@ if __name__ == "__main__":
     dm.setup(stage="fit")
     print(dm.dims)
 
-    from models.rnn import RNNClassifier
-    model = RNNClassifier(
-        rnn=nn.LSTM(
-            input_size=dm.dims[-1],
-            hidden_size=64,
-            num_layers=2,
-            batch_first=True,
-            dropout=0.1,
-        ),
-        classifier=nn.Sequential(
-            nn.Linear(64, 16),
-            nn.BatchNorm1d(16),
-            nn.ReLU(),
-            nn.Linear(16, 8),
-            nn.BatchNorm1d(8),
-            nn.ReLU(),
-            nn.Linear(8, 2),
-            nn.Sigmoid(),
-        )
-    )
+    # from models.rnn import RNNClassifier
+    # model = RNNClassifier(
+    #     rnn=nn.LSTM(
+    #         input_size=dm.dims[-1],
+    #         hidden_size=64,
+    #         num_layers=2,
+    #         batch_first=True,
+    #         dropout=0.1,
+    #     ),
+    #     classifier=nn.Sequential(
+    #         nn.Linear(64, 16),
+    #         nn.BatchNorm1d(16),
+    #         nn.ReLU(),
+    #         nn.Linear(16, 8),
+    #         nn.BatchNorm1d(8),
+    #         nn.ReLU(),
+    #         nn.Linear(8, 2),
+    #         nn.Sigmoid(),
+    #     )
+    # )
+    # print(model)
 
-    net = SentimentAnalysisNet(
-        model,
-        lr=10e-3,
-    )
+    # net = SentimentAnalysisNet(
+    #     model,
+    #     lr=10e-3,
+    # )
 
     # wandb_logger = WandbLogger(project="cil")
     # lr_monitor = LearningRateMonitor(logging_interval="step")
@@ -109,12 +110,12 @@ if __name__ == "__main__":
     # )
     # trainer_params = {"callbacks": [lr_monitor, checkpoint_callback]}
 
-    trainer = L.Trainer(
-        max_epochs=1,
-        # callbacks=trainer_params["callbacks"],
-        # logger=wandb_logger,
-    )
+    # trainer = L.Trainer(
+    #     max_epochs=1,
+    #     # callbacks=trainer_params["callbacks"],
+    #     # logger=wandb_logger,
+    # )
 
-    print("start training...")
-    trainer.fit(model=net, datamodule=dm)
-    print("done!")
+    # print("start training...")
+    # trainer.fit(model=net, datamodule=dm)
+    # print("done!")

@@ -13,7 +13,6 @@ def create_w2v_embeddings(tokenized_corpus, **word2vec_kwargs):
         tokenized_corpus,
         **word2vec_kwargs,
     )
-    w2v.init_sims(replace=True) # done training, so delete context vectors
     # w2v.save('w2v-vectors.pkl')
 
     # 2. compute embeddings matrix
