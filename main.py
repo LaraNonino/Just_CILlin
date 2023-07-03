@@ -70,6 +70,7 @@ if __name__ == "__main__":
 
     # Run datamodule to check input dimensions
     dm.setup(stage="fit")
+    print(dm.dims)
 
     from models.rnn import RNNClassifier
     model = RNNClassifier(
@@ -113,4 +114,7 @@ if __name__ == "__main__":
         # callbacks=trainer_params["callbacks"],
         # logger=wandb_logger,
     )
+
+    print("start training...")
     trainer.fit(model=net, datamodule=dm)
+    print("done!")

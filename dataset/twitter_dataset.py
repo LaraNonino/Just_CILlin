@@ -55,7 +55,7 @@ class TwitterDataModule(L.LightningDataModule):
                 tweets = self.tokenizer(tweets, **self.tokenizer_kwargs)
             tweets = self.convert_to_features(tweets, **self.convert_to_features_kwargs) 
             if isinstance(tweets, csr_matrix): # CountVectorizer
-                tweets = torch.from_numpy(tweets.todense())
+                tweets = torch.from_numpy(tweets.todense()).float()
             # else: tweets: torch.tensor
 
             labels = torch.tensor([POSITIVE] * len(positive) + [NEGATIVE] * len(negative)).unsqueeze(1)
