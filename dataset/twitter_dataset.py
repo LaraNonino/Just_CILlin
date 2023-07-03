@@ -8,6 +8,8 @@ from typing import Callable, Dict
 
 from scipy.sparse._csr import csr_matrix
 
+from tqdm import tqdm
+
 NEGATIVE = 0
 POSITIVE = 1
 
@@ -34,16 +36,6 @@ class TwitterDataModule(L.LightningDataModule):
         self.tokenizer = tokenizer
         self.tokenizer_kwargs = tokenizer_kwargs or {}
         self.batch_size = batch_size
-
-    @property
-    def train_corpus(self):
-        positive = self._load_tweets(self.path_train_pos)
-        negative = self._load_tweets(self.path_train_neg)
-        return np.array(positive + negative)
-
-    @property
-    def predict_corpus(self):
-        return np.array(self._load_tweets(self.path_predict))
 
     def setup(self, stage: str=None) -> None:
         """Recovers data from disk and performs train/val split"""
@@ -91,7 +83,7 @@ class TwitterDataModule(L.LightningDataModule):
     def _load_tweets(self, path: str):
         tweets = []
         with open(path, 'r', encoding='utf-8') as f:
-            for line in f:
+            for line in tqdm(f):
                 tweets.append(line.rstrip())
         return tweets
     

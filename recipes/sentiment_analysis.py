@@ -17,7 +17,9 @@ class SentimentAnalysisNet(L.LightningModule):
 
         self.model = model
         self.criterion = criterion
-        self.accuracy = torchmetrics.Accuracy(task="binary")
+        self.train_accuracy = torchmetrics.Accuracy(task="binary", threshold=0.5)
+        self.val_accuracy = torchmetrics.Accuracy(task="binary", threshold=0.5)
+        # self.val_confmatrix
         
         self.lr = lr
         self.optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
@@ -29,18 +31,22 @@ class SentimentAnalysisNet(L.LightningModule):
 
     def forward(self, x):
         output = self.model(x)
-        if isinstance(output, tuple): # in RNNs
-            output = output[0]
         return output
     
     def training_step(self, batch, batch_idx):
         x, y = batch
         y_hat = self(x)
         loss = self.criterion(y_hat, y)
+        self.log("train_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
         return loss
+    
+    def validation_step(self, batch, batch_idx):
+        x, y = batch
+        y_hat = self(x)
+        loss = self.criterion(y_hat, y)
+        self.log("val_loss", loss)
     
     def configure_optimizers(self):
         if self.scheduler is not None:
             return [self.optimizer], [self.scheduler]
         return [self.optimizer]
-    
