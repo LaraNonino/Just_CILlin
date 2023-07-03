@@ -17,7 +17,7 @@ class SentimentAnalysisNet(L.LightningModule):
 
         self.model = model
         self.criterion = criterion
-        self.accuracy = torchmetrics.Accuracy()
+        self.accuracy = torchmetrics.Accuracy(task="binary")
         
         self.lr = lr
         self.optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
@@ -28,10 +28,10 @@ class SentimentAnalysisNet(L.LightningModule):
             )
 
     def forward(self, x):
-        return self.model(x)
+        return self.model(x.float())
     
     def training_step(self, batch, batch_idx):
-        x, y = batch[:, :-1], batch[:, -1]
+        x, y = batch
         y_hat = self(x)
         loss = self.criterion(y_hat, y)
         return loss
