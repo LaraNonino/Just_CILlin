@@ -28,7 +28,10 @@ class SentimentAnalysisNet(L.LightningModule):
             )
 
     def forward(self, x):
-        return self.model(x.float())
+        output = self.model(x)
+        if isinstance(output, tuple): # in RNNs
+            output = output[0]
+        return output
     
     def training_step(self, batch, batch_idx):
         x, y = batch

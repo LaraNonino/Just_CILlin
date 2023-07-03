@@ -1,11 +1,11 @@
 numpy
 torch
 torchvision
+torchtext
 torchmetrics
 pytorch_lightning
 scikit-learn
 scipy
 nltk
 gensim
-glove_python 
 wandb

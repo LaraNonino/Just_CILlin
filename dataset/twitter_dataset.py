@@ -1,5 +1,4 @@
 import pytorch_lightning as L
-from pytorch_lightning.utilities.types import EVAL_DATALOADERS, TRAIN_DATALOADERS
 
 import torch
 from torch.utils.data import Dataset, DataLoader
@@ -43,7 +42,7 @@ class TwitterDataModule(L.LightningDataModule):
         return np.array(positive + negative)
 
     @property
-    def test_corpus(self):
+    def predict_corpus(self):
         return np.array(self._load_tweets(self.path_predict))
 
     def setup(self, stage: str=None) -> None:
@@ -54,12 +53,12 @@ class TwitterDataModule(L.LightningDataModule):
             tweets = np.array(positive + negative)
             if self.tokenizer is not None:
                 tweets = self.tokenizer(tweets, **self.tokenizer_kwargs)
-            tweets = self.convert_to_features(tweets, **self.convert_to_features_kwargs)
+            tweets = self.convert_to_features(tweets, **self.convert_to_features_kwargs) 
             if isinstance(tweets, csr_matrix): # CountVectorizer
                 tweets = torch.from_numpy(tweets.todense())
-            # if data_augmentation: ...
-            # labels = torch.tensor([POSITIVE] * len(positive) + [NEGATIVE] * len(negative)).unsqueeze(1)
-            labels = torch.tensor([POSITIVE] * 10 + [NEGATIVE] * len(negative))
+            # else: tweets: torch.tensor
+
+            labels = torch.tensor([POSITIVE] * len(positive) + [NEGATIVE] * len(negative)).unsqueeze(1)
 
             # train, val split
             np.random.seed(1) # reproducibility
@@ -68,26 +67,25 @@ class TwitterDataModule(L.LightningDataModule):
             train_indices = shuffled_indices[:split]
             val_indices = shuffled_indices[split:]
 
-            # self.train_data = torch.hstack((tweets[train_indices], labels[train_indices]))
             self.train_data = _Dataset(tweets[train_indices], labels[train_indices])
             self.val_data =  _Dataset(tweets[val_indices], labels[val_indices])
             
         if stage is None or stage == "predict":
-            test = self.test_corpus
+            test = self.predict_corpus
             tweets = self.convert_to_features(np.array(test))
             if isinstance(tweets, csr_matrix): # CountVectorizer
                 tweets = torch.from_numpy(tweets.todense())
             self.test_data = tweets
 
-        self.dims = (self.batch_size, *(tweets[:,].shape)) # save input dimensions
+        self.dims = (self.batch_size, *(tweets.shape[1:])) # save input dimensions
     
-    def train_dataloader(self) -> TRAIN_DATALOADERS:
+    def train_dataloader(self):
         return  DataLoader(self.train_data, self.batch_size)
     
-    def val_dataloader(self) -> EVAL_DATALOADERS:
+    def val_dataloader(self):
         return DataLoader(self.val_data, self.batch_size)
     
-    def test_dataloader(self) -> EVAL_DATALOADERS:
+    def predict_dataloader(self):
         return DataLoader(self.test_data, self.batch_size)
     
     def _load_tweets(self, path: str):
