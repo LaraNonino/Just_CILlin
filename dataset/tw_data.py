@@ -26,7 +26,7 @@ class TWBertDataModule(L.LightningDataModule):
             tweets = list(positive) + list(negative)
             labels = torch.tensor([POSITIVE] * len(positive) + [NEGATIVE] * len(negative), dtype=torch.float)
 
-            train_data, val_data = self._split_dataset(tweets, labels)
+            train_data, val_data = self._split_dataset(tweets, labels, self.val_percentage)
             
             self.tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
             econded_train = self.tokenizer(train_data[0], truncation=True, padding=True)
@@ -56,11 +56,11 @@ class TWBertDataModule(L.LightningDataModule):
                 tweets.append(line.rstrip())
         return tweets
     
-    def _split_dataset(self, tweets, labels):
+    def _split_dataset(self, tweets, labels, val_percentage):
         np.random.seed(1)
 
         shuffled_indices = np.random.permutation(len(tweets))
-        split = int(0.8 * len(tweets))
+        split = int((1 - val_percentage) * len(tweets))
 
         train_indices = shuffled_indices[:split]
         val_indices = shuffled_indices[split:]
