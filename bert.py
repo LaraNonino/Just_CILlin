@@ -21,7 +21,7 @@ def main():
     
     # Load and create datasets
     data_module = TWBertDataModule("twitter-datasets/train_pos.txt", "twitter-datasets/train_neg.txt", batch_size=BATCH_SIZE, val_percentage=0.1)
-    data_module.setup()
+    data_module.setup('fit')
     
     # Training
     model = AutoModelForSequenceClassification.from_pretrained("distilbert-base-uncased", num_labels=2)
@@ -45,7 +45,6 @@ def train(model, optimizer, loss_function, train_data, val_data, device, ts):
         train_loss, val_loss = 0, 0
         acc, n_steps, n_data = 0, 0, 0
         val_acc, val_n_steps, val_n_data = 0, 0, 0
-        total_steps = len(train_data) // BATCH_SIZE
 
         model.train()
         for step, batch in enumerate(train_data):
@@ -70,10 +69,8 @@ def train(model, optimizer, loss_function, train_data, val_data, device, ts):
                 loss_step = train_loss / n_steps
                 accu_step = (acc * 100) / n_data
 
-                print(f"Step {step}/{total_steps} Training: Loss = {loss_step} Accuracy = {accu_step}")
-                
-                writer.add_scalar('Train / loss', loss_step, (epoch * total_steps) + step)
-                writer.add_scalar('Train / acc', accu_step, (epoch * total_steps) + step)
+                writer.add_scalar('Train / loss', loss_step, (epoch * len(train_data)) + step)
+                writer.add_scalar('Train / acc', accu_step, (epoch * len(train_data)) + step)
 
             loss.backward()
             optimizer.step()
@@ -96,7 +93,13 @@ def train(model, optimizer, loss_function, train_data, val_data, device, ts):
 
                 val_n_steps += 1
                 val_n_data += labels.size(0)
-                print("Total timesteps:", val_n_data)
+
+                if step != 0 and step % 125 == 0:
+                    loss_step = val_loss / val_n_steps
+                    accu_step = (val_acc * 100) / val_n_data
+
+                    writer.add_scalar('Train / loss', loss_step, (epoch * len(val_data)) + step)
+                    writer.add_scalar('Train / acc', accu_step, (epoch * len(val_data)) + step)
 
         epoch_loss = train_loss / n_steps
         epoch_accu = (acc * 100) / n_data
@@ -107,9 +110,9 @@ def train(model, optimizer, loss_function, train_data, val_data, device, ts):
         print(f"Epoch {epoch} Validation: Loss = {total_val_loss} Accuracy = {total_val_accu}")
 
         # writer.add_scalar('Train / loss', train_loss, epoch)
-        writer.add_scalar('Validation / loss', total_val_loss, epoch)
+        # writer.add_scalar('Validation / loss', total_val_loss, epoch)
         # writer.add_scalar('Train / acc', epoch_accu, epoch)
-        writer.add_scalar('Validation / acc', total_val_accu, epoch)
+        # writer.add_scalar('Validation / acc', total_val_accu, epoch)
 
     writer.close()
 
