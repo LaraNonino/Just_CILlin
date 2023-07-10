@@ -2,10 +2,9 @@ import os
 import torch
 import numpy as np
 from datetime import datetime
-from dataset.tw_dataset import TweetDataset
-from transformers import DistilBertTokenizer, DistilBertForSequenceClassification, AutoTokenizer, AutoModelForSequenceClassification
+from dataset.tw_data import TWBertDataModule
+from transformers import DistilBertForSequenceClassification, AutoModelForSequenceClassification
 from tqdm import tqdm
-from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 
 NEGATIVE = 0
@@ -21,23 +20,8 @@ def main():
     print('Using {} device'.format(device))
     
     # Load and create datasets
-    positive = load_tweets("twitter-datasets/train_pos_full.txt")
-    negative = load_tweets("twitter-datasets/train_neg_full.txt")
-
-    tweets = list(positive) + list(negative)
-    labels = torch.tensor([POSITIVE] * len(positive) + [NEGATIVE] * len(negative), dtype=torch.float)
-
-    train_data, val_data = split_dataset(tweets, labels)
-
-    tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
-    econded_train = tokenizer(train_data[0], truncation=True, padding=True)
-    encoded_val = tokenizer(val_data[0], truncation=True, padding=True)
-
-    train_dataset = TweetDataset(econded_train, train_data[1])
-    val_dataset = TweetDataset(encoded_val, val_data[1])
-
-    train_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, num_workers=2, drop_last=True, pin_memory=True)
-    val_dataloader = DataLoader(val_dataset, batch_size=BATCH_SIZE)
+    data_module = TWBertDataModule("twitter-datasets/train_pos.txt", "twitter-datasets/train_neg.txt", batch_size=BATCH_SIZE, val_percentage=0.1)
+    data_module.setup()
     
     # Training
     model = AutoModelForSequenceClassification.from_pretrained("distilbert-base-uncased", num_labels=2)
@@ -45,7 +29,7 @@ def main():
     loss_function = torch.nn.CrossEntropyLoss()
 
     ts = timestamp('%d-%m-%Y-%H:%M:%S')
-    train(model, optimizer, loss_function, train_dataloader, val_dataloader, device, ts)
+    train(model, optimizer, loss_function, data_module.train_dataloader(), data_module.val_dataloader(), device, ts)
     
     path = 'out/models/{}'.format(ts)
     os.makedirs(path, exist_ok = True)
