@@ -11,16 +11,18 @@ from torch.utils.tensorboard import SummaryWriter
 NEGATIVE = 0
 POSITIVE = 1
 
-N_EPOCHS = 1
+N_EPOCHS = 2
 L_RATE = 2e-5
+
+BATCH_SIZE = 256
 
 def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print('Using {} device'.format(device))
     
     # Load and create datasets
-    positive = load_tweets("twitter-datasets/train_pos.txt")
-    negative = load_tweets("twitter-datasets/train_neg.txt")
+    positive = load_tweets("twitter-datasets/train_pos_full.txt")
+    negative = load_tweets("twitter-datasets/train_neg_full.txt")
 
     tweets = list(positive) + list(negative)
     labels = torch.tensor([POSITIVE] * len(positive) + [NEGATIVE] * len(negative), dtype=torch.float)
@@ -34,13 +36,12 @@ def main():
     train_dataset = TweetDataset(econded_train, train_data[1])
     val_dataset = TweetDataset(encoded_val, val_data[1])
 
-    train_dataloader = DataLoader(train_dataset, batch_size=16, num_workers=2, drop_last=True, pin_memory=True)
-    val_dataloader = DataLoader(val_dataset, batch_size=16)
+    train_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, num_workers=2, drop_last=True, pin_memory=True)
+    val_dataloader = DataLoader(val_dataset, batch_size=BATCH_SIZE)
     
     # Training
     model = AutoModelForSequenceClassification.from_pretrained("distilbert-base-uncased", num_labels=2)
     optimizer = torch.optim.Adam(params=model.parameters(), lr=L_RATE)
-    # loss_function = torch.nn.BCEWithLogitsLoss()
     loss_function = torch.nn.CrossEntropyLoss()
 
     ts = timestamp('%d-%m-%Y-%H:%M:%S')
@@ -56,11 +57,13 @@ def train(model, optimizer, loss_function, train_data, val_data, device, ts):
     model.to(device)
     loss_function.to(device)
 
-    for epoch in range(1, N_EPOCHS + 1):
+    for epoch in range(N_EPOCHS):
         train_loss, val_loss = 0, 0
         acc, n_steps, n_data = 0, 0, 0
         val_acc, val_n_steps, val_n_data = 0, 0, 0
+        total_steps = len(train_data) // BATCH_SIZE
 
+        model.train()
         for step, batch in enumerate(train_data):
             ids = batch['input_ids'].to(device)
             mask = batch['attention_mask'].to(device)
@@ -79,14 +82,19 @@ def train(model, optimizer, loss_function, train_data, val_data, device, ts):
             n_steps += 1
             n_data += labels.size(0)
             
-            if step != 0 and step % 225 == 0:
+            if step != 0 and step % 125 == 0:
                 loss_step = train_loss / n_steps
-                accu_step = (acc * 100) / n_data 
-                print(f"Step {step}/1125 Training: Loss = {loss_step} Accuracy = {accu_step}")
+                accu_step = (acc * 100) / n_data
+
+                print(f"Step {step}/{total_steps} Training: Loss = {loss_step} Accuracy = {accu_step}")
+                
+                writer.add_scalar('Train / loss', loss_step, (epoch * total_steps) + step)
+                writer.add_scalar('Train / acc', accu_step, (epoch * total_steps) + step)
 
             loss.backward()
             optimizer.step()
 
+        model.eval()
         with torch.no_grad():
             for step, val_batch in enumerate(val_data):
                 val_batch = next(iter(val_data))
@@ -104,6 +112,7 @@ def train(model, optimizer, loss_function, train_data, val_data, device, ts):
 
                 val_n_steps += 1
                 val_n_data += labels.size(0)
+                print("Total timesteps:", val_n_data)
 
         epoch_loss = train_loss / n_steps
         epoch_accu = (acc * 100) / n_data
@@ -113,10 +122,10 @@ def train(model, optimizer, loss_function, train_data, val_data, device, ts):
         total_val_accu = (val_acc * 100) / val_n_data
         print(f"Epoch {epoch} Validation: Loss = {total_val_loss} Accuracy = {total_val_accu}")
 
-        writer.add_scalar('Train / loss', train_loss, epoch)
-        writer.add_scalar('Validation / loss', val_loss, epoch)
-        writer.add_scalar('Train / acc', epoch_accu, epoch)
-        writer.add_scalar('Validation / acc', val_acc, epoch)
+        # writer.add_scalar('Train / loss', train_loss, epoch)
+        writer.add_scalar('Validation / loss', total_val_loss, epoch)
+        # writer.add_scalar('Train / acc', epoch_accu, epoch)
+        writer.add_scalar('Validation / acc', total_val_accu, epoch)
 
     writer.close()
 
@@ -131,7 +140,7 @@ def split_dataset(tweets, labels):
     np.random.seed(1)
 
     shuffled_indices = np.random.permutation(len(tweets))
-    split = int(0.9 * len(tweets))
+    split = int(0.8 * len(tweets))
 
     train_indices = shuffled_indices[:split]
     val_indices = shuffled_indices[split:]
