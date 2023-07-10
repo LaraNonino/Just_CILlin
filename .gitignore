@@ -7,3 +7,6 @@ lightning_logs/
 cil.*
 __MACOSX/
 wandb/
+environment.yml
+commands.txt
+bert.ipynb

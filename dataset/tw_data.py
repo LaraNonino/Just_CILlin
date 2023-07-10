@@ -9,13 +9,14 @@ NEGATIVE = 0
 POSITIVE = 1
 
 class TWBertDataModule(L.LightningDataModule):
-    def __init__(self, path_train_pos: str, path_train_neg: str, path_predict: str=None, val_percentage: float=0.1, batch_size: int=32):
+    def __init__(self, path_train_pos: str, path_train_neg: str, path_predict: str=None, val_percentage: float=0.1, batch_size: int=32, num_workers: int=1):
         super().__init__()
         self.path_train_pos = path_train_pos
         self.path_train_neg = path_train_neg
         self.path_predict = path_predict
         self.val_percentage = val_percentage
         self.batch_size = batch_size
+        self.num_workers = num_workers
 
     def setup(self, stage: str=None) -> None:
         """Recovers data from disk and performs train/val split"""
@@ -41,13 +42,13 @@ class TWBertDataModule(L.LightningDataModule):
             self.test_dataset = torch.tensor(econded_test)
     
     def train_dataloader(self):
-        return  DataLoader(self.train_dataset, self.batch_size, num_workers=2)
+        return  DataLoader(self.train_dataset, self.batch_size, num_workers=self.num_workers)
     
     def val_dataloader(self):
-        return DataLoader(self.val_dataset, self.batch_size)
+        return DataLoader(self.val_dataset, self.batch_size, num_workers=self.num_workers)
     
     def predict_dataloader(self):
-        return DataLoader(self.test_dataset, self.batch_size)
+        return DataLoader(self.test_dataset, self.batch_size, num_workers=self.num_workers)
     
     def _load_tweets(self, path: str):
         tweets = []
@@ -57,7 +58,7 @@ class TWBertDataModule(L.LightningDataModule):
         return tweets
     
     def _split_dataset(self, tweets, labels, val_percentage):
-        np.random.seed(1)
+        np.random.seed(42)
 
         shuffled_indices = np.random.permutation(len(tweets))
         split = int((1 - val_percentage) * len(tweets))
