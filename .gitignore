@@ -10,3 +10,9 @@ wandb/
 environment.yml
 commands.txt
 bert.ipynb
+cilenv
+job*
+script.sh
+Sentiment_*
+gensim-data
+out
