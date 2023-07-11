@@ -35,8 +35,8 @@ class SABertModel(L.LightningModule):
         logits = self.forward(ids, mask)
         loss = self.cross_entropy_loss(logits, labels)
 
-        _, big_idx = torch.max(logits, dim=1)
-        acc = (self._accuracy(big_idx, labels) * 100) / labels.size(0) 
+        _, preds = torch.max(logits, dim=1)
+        acc = (self._accuracy(preds, labels) * 100) / labels.size(0) 
         
         self.log('train_loss', loss)
         self.log('train_acc', acc)
@@ -50,11 +50,21 @@ class SABertModel(L.LightningModule):
         logits = self.forward(ids, mask)
         loss = self.cross_entropy_loss(logits, labels)
 
-        _, big_idx = torch.max(logits, dim=1)
-        acc = (self._accuracy(big_idx, labels) * 100) / labels.size(0) 
+        _, preds = torch.max(logits, dim=1)
+        acc = (self._accuracy(preds, labels) * 100) / labels.size(0) 
         
         self.log('val_loss', loss)
         self.log('val_acc', acc)
+
+    def predict_step(self, batch, batch_idx, dataloader_idx=0):
+        ids = batch['input_ids']
+        mask = batch['attention_mask']
+        test_id = batch['labels']
+
+        logits = self.forward(ids, mask)
+        _, preds = torch.max(logits, dim=1)
+
+        return torch.stack((test_id, preds), dim=1)
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)

@@ -5,10 +5,7 @@ from dataset.tw_data import TWBertDataModule
 import pytorch_lightning as L
 from models.simple_bert import SABertModel
 
-NEGATIVE = 0
-POSITIVE = 1
-
-N_EPOCHS = 2
+N_EPOCHS = 1
 LR_RATE = 2e-5
 
 BATCH_SIZE = 16
@@ -28,11 +25,12 @@ def main():
     
     # Training
     model = SABertModel(lr=LR_RATE)
-    trainer = L.Trainer(max_epochs=1, deterministic=True, log_every_n_steps=125, accelerator=device)
+    trainer = L.Trainer(max_epochs=N_EPOCHS, deterministic=True, log_every_n_steps=125, accelerator=device)
     trainer.fit(model, data_module.train_dataloader(), data_module.val_dataloader())
+    trainer.validate(model, data_module.val_dataloader())
     
     path = 'out/models/{}'.format(ts)
-    os.makedirs(path, exist_ok = True)
+    os.makedirs(path, exist_ok=True)
     torch.save(model.state_dict(), os.path.join(path, '{}.pt'.format(ts)))
 
 def accuracy(prediction, target):
