@@ -4,6 +4,7 @@ from datetime import datetime
 from dataset.tw_data import TWBertDataModule
 import pytorch_lightning as L
 from models.simple_bert import SABertModel
+from models.rnn_bert import RNNBertModel
 
 N_EPOCHS = 1
 LR_RATE = 2e-5
@@ -24,7 +25,9 @@ def main():
     data_module.setup('fit')
     
     # Training
-    model = SABertModel(lr=LR_RATE)
+    # model = SABertModel(lr=LR_RATE)
+    model = RNNBertModel(lr=LR_RATE)
+
     trainer = L.Trainer(max_epochs=N_EPOCHS, deterministic=True, log_every_n_steps=125, accelerator=device)
     trainer.fit(model, data_module.train_dataloader(), data_module.val_dataloader())
     trainer.validate(model, data_module.val_dataloader())
@@ -32,9 +35,6 @@ def main():
     path = 'out/models/{}'.format(ts)
     os.makedirs(path, exist_ok=True)
     torch.save(model.state_dict(), os.path.join(path, '{}.pt'.format(ts)))
-
-def accuracy(prediction, target):
-    return (prediction == target).sum().item()
 
 def timestamp(format):
     ts = datetime.timestamp(datetime.now())
