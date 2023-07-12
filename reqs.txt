@@ -10,3 +10,4 @@ nltk
 gensim
 wandb
 tqdm
+ipywidgets

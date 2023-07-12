@@ -1,2 +1,2 @@
 Run the following command on your local machine to enable port forwarding:
-ssh -N -L 8888:10.204.97.81:8888 amohame@login.euler.ethz.ch
+ssh -N -L 8888:10.204.97.86:8888 amohame@login.euler.ethz.ch

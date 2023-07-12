@@ -2,7 +2,7 @@
   
 #SBATCH --ntasks-per-node=4
 #SBATCH --time=4:00:00
-#SBATCH --mem-per-cpu=5G
+#SBATCH --mem-per-cpu=50G
 #SBATCH --job-name=jupyter
 #SBATCH --output=jupyter.out
 #SBATCH --error=jupyter.err

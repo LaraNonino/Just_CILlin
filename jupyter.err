@@ -2,120 +2,24 @@
 The following have been reloaded with a version change:
   1) gcc/4.8.5 => gcc/8.2.0
 
-[W 2023-07-03 20:38:58.786 LabApp] 'port_retries' has moved from NotebookApp to ServerApp. This config will be passed to ServerApp. Be sure to update your config before our next release.
-[I 2023-07-03 20:38:58.797 ServerApp] jupyterlab | extension was successfully linked.
-[I 2023-07-03 20:38:58.824 ServerApp] nbclassic | extension was successfully linked.
-[I 2023-07-03 20:39:03.150 ServerApp] notebook_shim | extension was successfully linked.
-[I 2023-07-03 20:39:03.630 ServerApp] notebook_shim | extension was successfully loaded.
-[I 2023-07-03 20:39:03.632 LabApp] JupyterLab extension loaded from /cluster/apps/nss/gcc-8.2.0/python/3.10.4/x86_64/lib64/python3.10/site-packages/jupyterlab
-[I 2023-07-03 20:39:03.632 LabApp] JupyterLab application directory is /cluster/apps/nss/gcc-8.2.0/python/3.10.4/x86_64/share/jupyter/lab
-[I 2023-07-03 20:39:03.649 ServerApp] jupyterlab | extension was successfully loaded.
-[I 2023-07-03 20:39:03.799 ServerApp] nbclassic | extension was successfully loaded.
-[I 2023-07-03 20:39:03.799 ServerApp] Serving notebooks from local directory: /cluster/home/amohame/cil/Just_CILlin
-[I 2023-07-03 20:39:03.800 ServerApp] Jupyter Server 1.17.0 is running at:
-[I 2023-07-03 20:39:03.800 ServerApp] http://10.204.97.81:8888/lab?token=cc2a817d7a3e5ea4cf38cb0bf6b778a00fecbd06b6d6efc3
-[I 2023-07-03 20:39:03.800 ServerApp]  or http://127.0.0.1:8888/lab?token=cc2a817d7a3e5ea4cf38cb0bf6b778a00fecbd06b6d6efc3
-[I 2023-07-03 20:39:03.800 ServerApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
-[C 2023-07-03 20:39:03.845 ServerApp] 
+[W 2023-07-12 13:28:48.276 LabApp] 'port_retries' has moved from NotebookApp to ServerApp. This config will be passed to ServerApp. Be sure to update your config before our next release.
+[I 2023-07-12 13:28:48.287 ServerApp] jupyterlab | extension was successfully linked.
+[I 2023-07-12 13:28:48.297 ServerApp] nbclassic | extension was successfully linked.
+[I 2023-07-12 13:28:52.548 ServerApp] notebook_shim | extension was successfully linked.
+[I 2023-07-12 13:28:52.864 ServerApp] notebook_shim | extension was successfully loaded.
+[I 2023-07-12 13:28:52.865 LabApp] JupyterLab extension loaded from /cluster/apps/nss/gcc-8.2.0/python/3.10.4/x86_64/lib64/python3.10/site-packages/jupyterlab
+[I 2023-07-12 13:28:52.865 LabApp] JupyterLab application directory is /cluster/apps/nss/gcc-8.2.0/python/3.10.4/x86_64/share/jupyter/lab
+[I 2023-07-12 13:28:52.874 ServerApp] jupyterlab | extension was successfully loaded.
+[I 2023-07-12 13:28:52.981 ServerApp] nbclassic | extension was successfully loaded.
+[I 2023-07-12 13:28:52.981 ServerApp] Serving notebooks from local directory: /cluster/home/amohame/cil/Just_CILlin
+[I 2023-07-12 13:28:52.981 ServerApp] Jupyter Server 1.17.0 is running at:
+[I 2023-07-12 13:28:52.981 ServerApp] http://10.204.97.86:8888/lab?token=9bdd36aa8b18d7a4bd1657b5f4a5030bcd090c5636f8da9d
+[I 2023-07-12 13:28:52.981 ServerApp]  or http://127.0.0.1:8888/lab?token=9bdd36aa8b18d7a4bd1657b5f4a5030bcd090c5636f8da9d
+[I 2023-07-12 13:28:52.981 ServerApp] Use Control-C to stop this server and shut down all kernels (twice to skip confirmation).
+[C 2023-07-12 13:28:53.017 ServerApp] 
     
     To access the server, open this file in a browser:
-        file:///cluster/home/amohame/.local/share/jupyter/runtime/jpserver-10016-open.html
+        file:///cluster/home/amohame/.local/share/jupyter/runtime/jpserver-75175-open.html
     Or copy and paste one of these URLs:
-        http://10.204.97.81:8888/lab?token=cc2a817d7a3e5ea4cf38cb0bf6b778a00fecbd06b6d6efc3
-     or http://127.0.0.1:8888/lab?token=cc2a817d7a3e5ea4cf38cb0bf6b778a00fecbd06b6d6efc3
-[W 2023-07-03 20:39:07.716 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c?1688409547486 (129.132.93.93): Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:07.719 ServerApp] Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:07.720 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c?1688409547486 (129.132.93.93) 5.74ms referer=http://127.0.0.1:8888/lab/tree/main.ipynb
-[W 2023-07-03 20:39:08.716 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c/channels?session_id=113b80ef-c5d1-4a77-b794-92f22bbf0a77 (129.132.93.93): Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:08.898 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c/channels?session_id=113b80ef-c5d1-4a77-b794-92f22bbf0a77 (129.132.93.93) 185.46ms referer=None
-[W 2023-07-03 20:39:08.961 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c?1688409548832 (129.132.93.93): Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:08.961 ServerApp] Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:08.962 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c?1688409548832 (129.132.93.93) 2.03ms referer=http://127.0.0.1:8888/lab/tree/main.ipynb
-[W 2023-07-03 20:39:09.714 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c/channels?session_id=113b80ef-c5d1-4a77-b794-92f22bbf0a77 (129.132.93.93): Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:09.716 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c/channels?session_id=113b80ef-c5d1-4a77-b794-92f22bbf0a77 (129.132.93.93) 4.97ms referer=None
-[W 2023-07-03 20:39:09.777 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c?1688409549648 (129.132.93.93): Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:09.778 ServerApp] Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:09.778 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c?1688409549648 (129.132.93.93) 1.93ms referer=http://127.0.0.1:8888/lab/tree/main.ipynb
-[W 2023-07-03 20:39:12.721 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c/channels?session_id=113b80ef-c5d1-4a77-b794-92f22bbf0a77 (129.132.93.93): Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:12.734 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c/channels?session_id=113b80ef-c5d1-4a77-b794-92f22bbf0a77 (129.132.93.93) 16.52ms referer=None
-[W 2023-07-03 20:39:12.794 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c?1688409552667 (129.132.93.93): Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:12.794 ServerApp] Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:12.795 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c?1688409552667 (129.132.93.93) 1.39ms referer=http://127.0.0.1:8888/lab/tree/main.ipynb
-[W 2023-07-03 20:39:14.614 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c?1688409554483 (129.132.93.93): Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:14.614 ServerApp] Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:14.614 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c?1688409554483 (129.132.93.93) 2.12ms referer=http://127.0.0.1:8888/lab/tree/main.ipynb
-[W 2023-07-03 20:39:15.687 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c/channels?session_id=8583138c-0168-460b-b377-3b4d0a2b35ea (129.132.93.93): Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:15.688 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c/channels?session_id=8583138c-0168-460b-b377-3b4d0a2b35ea (129.132.93.93) 4.98ms referer=None
-[W 2023-07-03 20:39:15.751 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c?1688409555622 (129.132.93.93): Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:15.751 ServerApp] Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:15.752 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c?1688409555622 (129.132.93.93) 1.94ms referer=http://127.0.0.1:8888/lab/tree/main.ipynb
-[W 2023-07-03 20:39:16.682 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c/channels?session_id=8583138c-0168-460b-b377-3b4d0a2b35ea (129.132.93.93): Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:16.684 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c/channels?session_id=8583138c-0168-460b-b377-3b4d0a2b35ea (129.132.93.93) 4.51ms referer=None
-[W 2023-07-03 20:39:16.746 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c?1688409556616 (129.132.93.93): Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:16.746 ServerApp] Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:16.746 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c?1688409556616 (129.132.93.93) 1.93ms referer=http://127.0.0.1:8888/lab/tree/main.ipynb
-[W 2023-07-03 20:39:19.740 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c/channels?session_id=113b80ef-c5d1-4a77-b794-92f22bbf0a77 (129.132.93.93): Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:19.751 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c/channels?session_id=113b80ef-c5d1-4a77-b794-92f22bbf0a77 (129.132.93.93) 14.29ms referer=None
-[W 2023-07-03 20:39:19.813 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c?1688409559684 (129.132.93.93): Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:19.813 ServerApp] Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:19.814 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c?1688409559684 (129.132.93.93) 1.91ms referer=http://127.0.0.1:8888/lab/tree/main.ipynb
-[W 2023-07-03 20:39:23.733 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c/channels?session_id=8583138c-0168-460b-b377-3b4d0a2b35ea (129.132.93.93): Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:23.738 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c/channels?session_id=8583138c-0168-460b-b377-3b4d0a2b35ea (129.132.93.93) 8.09ms referer=None
-[W 2023-07-03 20:39:23.802 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c?1688409563673 (129.132.93.93): Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:23.802 ServerApp] Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:23.803 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c?1688409563673 (129.132.93.93) 1.88ms referer=http://127.0.0.1:8888/lab/tree/main.ipynb
-[W 2023-07-03 20:39:28.728 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c/channels?session_id=113b80ef-c5d1-4a77-b794-92f22bbf0a77 (129.132.93.93): Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:28.733 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c/channels?session_id=113b80ef-c5d1-4a77-b794-92f22bbf0a77 (129.132.93.93) 8.40ms referer=None
-[W 2023-07-03 20:39:28.795 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c?1688409568666 (129.132.93.93): Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:28.795 ServerApp] Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:28.796 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c?1688409568666 (129.132.93.93) 1.90ms referer=http://127.0.0.1:8888/lab/tree/main.ipynb
-[W 2023-07-03 20:39:37.127 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c/channels?session_id=8583138c-0168-460b-b377-3b4d0a2b35ea (129.132.93.93): Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:37.144 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c/channels?session_id=8583138c-0168-460b-b377-3b4d0a2b35ea (129.132.93.93) 20.20ms referer=None
-[W 2023-07-03 20:39:37.649 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c?1688409577371 (129.132.93.93): Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:37.650 ServerApp] Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:37.652 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c?1688409577371 (129.132.93.93) 6.92ms referer=http://127.0.0.1:8888/lab/tree/main.ipynb
-[W 2023-07-03 20:39:59.240 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c/channels?session_id=8583138c-0168-460b-b377-3b4d0a2b35ea (129.132.93.93): Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:59.246 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c/channels?session_id=8583138c-0168-460b-b377-3b4d0a2b35ea (129.132.93.93) 1484.30ms referer=None
-[W 2023-07-03 20:39:59.521 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c?1688409599392 (129.132.93.93): Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:59.522 ServerApp] Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:39:59.522 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c?1688409599392 (129.132.93.93) 2.00ms referer=http://127.0.0.1:8888/lab/tree/main.ipynb
-[I 2023-07-03 20:40:09.460 LabApp] Build is up to date
-[W 2023-07-03 20:40:15.687 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c/channels?session_id=8583138c-0168-460b-b377-3b4d0a2b35ea (129.132.93.93): Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:40:15.699 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c/channels?session_id=8583138c-0168-460b-b377-3b4d0a2b35ea (129.132.93.93) 13.43ms referer=None
-[W 2023-07-03 20:40:15.763 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c?1688409615636 (129.132.93.93): Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:40:15.763 ServerApp] Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:40:15.764 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c?1688409615636 (129.132.93.93) 0.75ms referer=http://127.0.0.1:8888/lab/tree/main.ipynb
-[W 2023-07-03 20:40:24.715 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c/channels?session_id=113b80ef-c5d1-4a77-b794-92f22bbf0a77 (129.132.93.93): Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:40:24.720 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c/channels?session_id=113b80ef-c5d1-4a77-b794-92f22bbf0a77 (129.132.93.93) 8.27ms referer=None
-[W 2023-07-03 20:40:24.813 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c?1688409624651 (129.132.93.93): Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:40:24.813 ServerApp] Kernel does not exist: 8d35ce1f-12ce-4eb0-aaea-62ce5470314c
-[W 2023-07-03 20:40:24.813 ServerApp] 404 GET /api/kernels/8d35ce1f-12ce-4eb0-aaea-62ce5470314c?1688409624651 (129.132.93.93) 1.23ms referer=http://127.0.0.1:8888/lab/tree/main.ipynb
-[I 2023-07-03 20:40:36.894 ServerApp] Kernel started: c8c4945b-7912-44d3-b2f4-7d81300ca555
-[I 2023-07-03 20:40:56.982 ServerApp] Starting buffering for c8c4945b-7912-44d3-b2f4-7d81300ca555:deb72840-220e-467a-8e8c-0a7bfb1b78d5
-[IPKernelApp] ERROR | No such comm target registered: jupyter.widget.control
-[IPKernelApp] WARNING | No such comm: 7de5a1bb-00c4-49a5-a9b0-a4d9ab51993b
-2023-07-03 20:41:18.466405: I tensorflow/core/util/util.cc:169] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
-[I 2023-07-03 20:42:36.558 ServerApp] Saving file at /main.ipynb
-slurmstepd: error: poll(): Bad address
-[I 2023-07-03 20:43:06.878 ServerApp] AsyncIOLoopKernelRestarter: restarting kernel (1/5), keep random ports
-[W 2023-07-03 20:43:06.881 ServerApp] kernel c8c4945b-7912-44d3-b2f4-7d81300ca555 restarted
-[W 2023-07-03 20:43:06.886 ServerApp] kernel c8c4945b-7912-44d3-b2f4-7d81300ca555 restarted
-[I 2023-07-03 20:43:07.017 ServerApp] Starting buffering for c8c4945b-7912-44d3-b2f4-7d81300ca555:2a589d4d-2288-4627-9218-1eb9ff7b8da6
-[IPKernelApp] ERROR | No such comm target registered: jupyter.widget.control
-[IPKernelApp] WARNING | No such comm: f8a66a9e-5866-4861-a20f-797472999c81
-[I 2023-07-03 20:44:37.822 ServerApp] Saving file at /main.ipynb
-2023-07-03 20:47:39.134486: I tensorflow/core/util/util.cc:169] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
-[I 2023-07-03 20:47:51.517 ServerApp] Saving file at /main.ipynb
-[I 2023-07-03 20:49:06.966 ServerApp] AsyncIOLoopKernelRestarter: restarting kernel (1/5), keep random ports
-[W 2023-07-03 20:49:06.970 ServerApp] kernel c8c4945b-7912-44d3-b2f4-7d81300ca555 restarted
-[W 2023-07-03 20:49:06.979 ServerApp] kernel c8c4945b-7912-44d3-b2f4-7d81300ca555 restarted
-[I 2023-07-03 20:49:07.153 ServerApp] Starting buffering for c8c4945b-7912-44d3-b2f4-7d81300ca555:2a589d4d-2288-4627-9218-1eb9ff7b8da6
-[IPKernelApp] ERROR | No such comm target registered: jupyter.widget.control
-[IPKernelApp] WARNING | No such comm: cd6ad786-bb91-4a3e-aeb4-ba8f221dd81c
-[I 2023-07-03 20:49:44.539 ServerApp] Saving file at /models/rnn.py
-[I 2023-07-03 20:49:52.705 ServerApp] Saving file at /main.ipynb
-[I 2023-07-03 20:55:54.749 ServerApp] Saving file at /main.ipynb
-2023-07-03 20:56:46.052564: I tensorflow/core/util/util.cc:169] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
-[I 2023-07-03 20:57:08.099 ServerApp] Saving file at /main.ipynb
-[I 2023-07-03 20:57:39.529 ServerApp] Starting buffering for c8c4945b-7912-44d3-b2f4-7d81300ca555:2a589d4d-2288-4627-9218-1eb9ff7b8da6
-slurmstepd: error: *** JOB 20233803 ON eu-lo-s4-080 CANCELLED AT 2023-07-04T00:38:46 DUE TO TIME LIMIT ***
+        http://10.204.97.86:8888/lab?token=9bdd36aa8b18d7a4bd1657b5f4a5030bcd090c5636f8da9d
+     or http://127.0.0.1:8888/lab?token=9bdd36aa8b18d7a4bd1657b5f4a5030bcd090c5636f8da9d
