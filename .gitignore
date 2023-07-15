@@ -5,6 +5,7 @@ __pycache__/
 lightning_logs/
 .ipynb_checkpoints
 cil.*
+jupyter.*
 __MACOSX/
 wandb/
 .vector_cache/
