@@ -7,6 +7,8 @@ import gensim.downloader as api
 
 import numpy as np
 
+from tqdm import tqdm
+
 def create_w2v_embeddings(tokenized_corpus, **word2vec_kwargs):
     # 1. train Word2Vec
     w2v = Word2Vec(
@@ -17,7 +19,7 @@ def create_w2v_embeddings(tokenized_corpus, **word2vec_kwargs):
 
     # 2. compute embeddings matrix
     X = []
-    for sentence in tokenized_corpus:
+    for sentence in tqdm(tokenized_corpus):
         embeddings = []
         for word in sentence:
             try:
