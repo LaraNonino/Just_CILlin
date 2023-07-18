@@ -11,7 +11,38 @@ from recipes.sentiment_analysis import SentimentAnalysisNet
 if __name__ == "__main__":
 
     batch_size = 32
-    embedding_dim = 200
+    embedding_dim = 300
+
+    from preprocessing.embeddings import create_w2v_embeddings
+    from string import punctuation 
+    translator = str.maketrans('','', punctuation)
+
+    dm = TwitterDataModule(
+        "twitter-datasets/tokenized.txt",
+        "twitter-datasets/test_data.txt",
+        # 1. Count vectorizer
+        # convert_to_features=count_vectorizer.fit_transform,
+        # # tokenizer=Tokenizer("tokenized.txt", return_as_matrix=False),
+        # tokenizer=lambda x: [tweet.translate(translator) for tweet in x],
+        # 2. Word2Vec 
+        convert_to_features=create_w2v_embeddings,
+        convert_to_features_kwargs={
+            "load_path": "twitter-datasets/w2v_tokenized_300.model",
+            "workers": 8,
+            "vector_size": embedding_dim,
+            "min_count": 1,
+            "window": 5,
+            "sample": 1e-3,
+        },
+        tokenizer=lambda x: [tweet.translate(translator).split() for tweet in x],
+        # save_embeddings_path="w2v_embeddings_300.pt",
+        batch_size=batch_size,
+    )
+
+    # Run datamodule to check input dimensions
+    dm.setup(stage="fit")
+    # print(dm.dims)
+    quit()
 
     # Choose tokenizer/embedding
     # 1) CountVectorizer:

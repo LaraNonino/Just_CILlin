@@ -35,8 +35,9 @@ def create_w2v_embeddings(tokenized_corpus, **word2vec_kwargs):
             except TypeError:
                 pass
         embeddings = torch.from_numpy(np.array(embeddings)) # embeddings: (seq_len, embedding_dim)
-        X += [embeddings]
-    X = pad_sequence(X, batch_first=True) # (batch_size, max_seq_len, embedding_dim)
+        X += [embeddings] # list of torch tensors
+    # torch.save(X, "w2v_embeddings_300.pt")
+    X = pad_sequence(X, batch_first=True) # (corpus_length, max_seq_len, embedding_dim)
     return X
 
 def get_pretrained_glove_embeddings(tokenized_corpus, **glove_kwargs):
