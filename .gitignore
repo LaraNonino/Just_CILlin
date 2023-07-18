@@ -9,3 +9,4 @@ jupyter.*
 __MACOSX/
 wandb/
 .vector_cache/
+*.pkl

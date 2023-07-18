@@ -10,21 +10,28 @@ import numpy as np
 from tqdm import tqdm
 
 def create_w2v_embeddings(tokenized_corpus, **word2vec_kwargs):
-    # 1. train Word2Vec
-    w2v = Word2Vec(
-        tokenized_corpus,
-        **word2vec_kwargs,
-    )
-    # w2v.save('w2v-vectors.pkl')
+    # 1. Get pretrained Word2Vec model or train model
+    load_path = word2vec_kwargs.pop("load_path", None)
+    if load_path:
+        w2v = Word2Vec.load(load_path)
+    else:
+        save_path = word2vec_kwargs.pop("save_path", None) # retrieve path if is keywords
+        w2v = Word2Vec(
+            tokenized_corpus,
+            **word2vec_kwargs,
+        )
+        if save_path:
+            w2v.save(save_path)
 
     # 2. compute embeddings matrix
     X = []
     for sentence in tqdm(tokenized_corpus):
+        if isinstance(sentence, str):
+            sentence = sentence.split()
         embeddings = []
         for word in sentence:
             try:
                 embeddings += [w2v.wv[word]]
-                # embeddings += [torch.from_numpy(embedding)]
             except TypeError:
                 pass
         embeddings = torch.from_numpy(np.array(embeddings)) # embeddings: (seq_len, embedding_dim)
