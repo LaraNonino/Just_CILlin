@@ -58,7 +58,7 @@ class TwitterDataModule(L.LightningDataModule):
             if isinstance(tweets, csr_matrix): # CountVectorizer
                 tweets = torch.from_numpy(tweets.todense()).float()
             # else: tweets: torch.tensor
-
+            
             # Save embeddings if needed
             if self.save_embeddings_path:
                 torch.save(tweets, self.save_embeddings_path)

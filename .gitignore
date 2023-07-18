@@ -1,5 +1,4 @@
 twitter-datasets/
-*.pt
 .DS_Store
 __pycache__/
 lightning_logs/
@@ -10,3 +9,4 @@ __MACOSX/
 wandb/
 .vector_cache/
 *.pkl
+trained_models/

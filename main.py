@@ -11,7 +11,7 @@ from recipes.sentiment_analysis import SentimentAnalysisNet
 if __name__ == "__main__":
 
     batch_size = 32
-    embedding_dim = 300
+    embedding_dim = 100
 
     from preprocessing.embeddings import create_w2v_embeddings
     from string import punctuation 
@@ -27,7 +27,7 @@ if __name__ == "__main__":
         # 2. Word2Vec 
         convert_to_features=create_w2v_embeddings,
         convert_to_features_kwargs={
-            "load_path": "twitter-datasets/w2v_tokenized_300.model",
+            "save_path": "trained_models/w2v_tokenized_100.model",
             "workers": 8,
             "vector_size": embedding_dim,
             "min_count": 1,
