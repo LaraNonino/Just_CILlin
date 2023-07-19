@@ -4,7 +4,7 @@
 #SBATCH --time=9:00:00
 #SBATCH --gpus=1
 #SBATCH --gres=gpumem:32G
-#SBATCH --mem-per-cpu=64G
+#SBATCH --mem-per-cpu=128G
 #SBATCH --job-name=sa
 #SBATCH --output=cil.out
 #SBATCH --error=cil.err

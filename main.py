@@ -1,6 +1,7 @@
 import pytorch_lightning as L
 from pytorch_lightning.loggers import WandbLogger
-from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
+# from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
+from pytorch_lightning.callbacks import ModelSummary
 
 import torch
 import torch.nn as nn
@@ -107,6 +108,7 @@ def main():
     PRETRAINED_MODEL_NAME = 'distilbert-base-uncased'
     from transformers import AutoTokenizer
 
+    print("Prepearing data module...")
     tokenizer = AutoTokenizer.from_pretrained(PRETRAINED_MODEL_NAME)
     dm = TwitterDataModule(
         ["twitter-datasets/train_pos_full.txt", "twitter-datasets/train_neg_full.txt"],
@@ -119,32 +121,19 @@ def main():
         batch_size=batch_size,
     )
 
-
     # Run datamodule to check input dimensions
     dm.setup(stage="fit")
+    print("Data module set up.")
 
     # Model
-    # from models.bert import BertPooledClassifier
-    # from models.attention import SelfAttention
-    # model = BertPooledClassifier(
-    #     PRETRAINED_MODEL_NAME,
-    #     classifier=nn.Sequential(
-    #         SelfAttention(768, collapse=False),
-    #         nn.Linear(768, 1)
-    #     )
-    # )
-     
-    from models.bert import BertUnpooledClassifier
+    from models.bert import BertPooledClassifier
     from models.attention import SelfAttention
-    model = BertUnpooledClassifier(
+    model = BertPooledClassifier(
         PRETRAINED_MODEL_NAME,
         classifier=nn.Sequential(
-            SelfAttention(
-                embed_dim=768, 
-                q_dim=768,
-                v_dim=256,
-                collapse=True
-            ),
+            nn.Linear(768, 256),
+            nn.BatchNorm1d(256),
+            nn.ReLU(),
             nn.Linear(256, 64),
             nn.BatchNorm1d(64),
             nn.ReLU(),
@@ -154,6 +143,27 @@ def main():
             nn.Linear(8, 1),
         )
     )
+     
+    # from models.bert import BertUnpooledClassifier
+    # from models.attention import SelfAttention
+    # model = BertUnpooledClassifier(
+    #     PRETRAINED_MODEL_NAME,
+    #     classifier=nn.Sequential(
+    #         SelfAttention(
+    #             embed_dim=768, 
+    #             q_dim=768,
+    #             v_dim=256,
+    #             collapse=True
+    #         ),
+    #         nn.Linear(256, 64),
+    #         nn.BatchNorm1d(64),
+    #         nn.ReLU(),
+    #         nn.Linear(64, 8),
+    #         nn.BatchNorm1d(8),
+    #         nn.ReLU(),
+    #         nn.Linear(8, 1),
+    #     )
+    # )
 
 
     # from models.rnn import RNNClassifier
@@ -195,9 +205,13 @@ def main():
     # trainer_params = {"callbacks": [lr_monitor, checkpoint_callback]}
 
     trainer = L.Trainer(
-        max_epochs=5,
+        max_epochs=1,
         # callbacks=trainer_params["callbacks"],
         # logger=wandb_logger,
+        callbacks=[ModelSummary(max_depth=1)],
+        deterministic=True, 
+        log_every_n_steps=125,
+        accelerator="gpu",
     )
 
     print("start training...")

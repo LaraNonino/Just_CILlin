@@ -75,7 +75,7 @@ class TwitterDataModule(L.LightningDataModule):
                 self.val_data =  _Dataset(val_X, val_y)
             
         if stage is None or stage == "predict":
-            test = self.predict_corpus
+            test = self._load_tweets(self.path_test)
             tweets = self.convert_to_features(np.array(test))
             if isinstance(tweets, csr_matrix): # CountVectorizer
                 tweets = torch.from_numpy(tweets.todense())
