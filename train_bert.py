@@ -5,6 +5,7 @@ from dataset.tw_data import TWBertDataModule
 import pytorch_lightning as L
 from models.simple_bert import SABertModel
 from models.rnn_bert import RNNBertModel
+from models.crnn_bert import CRNNBertModel
 
 N_EPOCHS = 1
 LR_RATE = 2e-5
@@ -13,6 +14,10 @@ BATCH_SIZE = 16
 N_WORKERS = 12
 
 def main():
+    print('Torch', torch.__version__)
+    print('Cuda', torch.version.cuda)
+
+
     ts = timestamp('%d-%m-%Y-%H:%M:%S')
     L.seed_everything(42, workers=True)
 
@@ -26,7 +31,8 @@ def main():
     
     # Training
     # model = SABertModel(lr=LR_RATE)
-    model = RNNBertModel(lr=LR_RATE)
+    # model = RNNBertModel(lr=LR_RATE)
+    model = CRNNBertModel(lr=LR_RATE)
 
     trainer = L.Trainer(max_epochs=N_EPOCHS, deterministic=True, log_every_n_steps=125, accelerator=device)
     trainer.fit(model, data_module.train_dataloader(), data_module.val_dataloader())
