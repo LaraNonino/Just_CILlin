@@ -124,10 +124,29 @@ def main():
     dm.setup(stage="fit")
 
     # Model
-    from models.bert import BertPooledClassifier
-    model = BertPooledClassifier(
+    # from models.bert import BertPooledClassifier
+    # from models.attention import SelfAttention
+    # model = BertPooledClassifier(
+    #     PRETRAINED_MODEL_NAME,
+    #     classifier=nn.Sequential(
+    #         SelfAttention(768, collapse=False),
+    #         nn.Linear(768, 1)
+    #     )
+    # )
+     
+    from models.bert import BertUnpooledClassifier
+    from models.attention import SelfAttention
+    model = BertUnpooledClassifier(
         PRETRAINED_MODEL_NAME,
-        classifier=nn.Linear(768, 1)
+        classifier=nn.Sequential(
+            SelfAttention(
+                embed_dim=768, 
+                q_dim=768,
+                v_dim=256,
+                collapse=True
+            ),
+            nn.Linear(256, 1)
+        )
     )
 
 
@@ -179,7 +198,7 @@ def main():
     trainer.fit(model=net, datamodule=dm)
     trainer.validate(net, dm.val_dataloader())
 
-    path = 'out/models/{}'.format(timestamp('%d-%m-%Y-%H:%M:%S'))
+    path = 'out/{}'.format(timestamp('%d-%m-%Y-%H:%M:%S'))
     os.makedirs(path, exist_ok=True)
     torch.save(model.state_dict(), os.path.join(path, '{}.pt'.format(timestamp('%d-%m-%Y-%H:%M:%S'))))
 
