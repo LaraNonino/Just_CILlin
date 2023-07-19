@@ -14,7 +14,7 @@ from recipes.sentiment_analysis import SentimentAnalysisNet
 def main():
     L.seed_everything(1, workers=True)
 
-    batch_size = 20
+    batch_size = 32
 
     # from preprocessing.embeddings import create_w2v_embeddings, pad_batch
     # from string import punctuation 
@@ -145,7 +145,13 @@ def main():
                 v_dim=256,
                 collapse=True
             ),
-            nn.Linear(256, 1)
+            nn.Linear(256, 64),
+            nn.BatchNorm1d(64),
+            nn.ReLU(),
+            nn.Linear(64, 8),
+            nn.BatchNorm1d(8),
+            nn.ReLU(),
+            nn.Linear(8, 1),
         )
     )
 
@@ -189,7 +195,7 @@ def main():
     # trainer_params = {"callbacks": [lr_monitor, checkpoint_callback]}
 
     trainer = L.Trainer(
-        max_epochs=1,
+        max_epochs=5,
         # callbacks=trainer_params["callbacks"],
         # logger=wandb_logger,
     )

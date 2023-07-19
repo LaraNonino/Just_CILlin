@@ -1,7 +1,7 @@
 #!/bin/bash
   
 #SBATCH --ntasks-per-node=4
-#SBATCH --time=4:00:00
+#SBATCH --time=9:00:00
 #SBATCH --gpus=1
 #SBATCH --mem-per-cpu=64G
 #SBATCH --job-name=sa
