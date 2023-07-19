@@ -3,7 +3,7 @@
 #SBATCH --ntasks-per-node=4
 #SBATCH --time=4:00:00
 #SBATCH --gpus=1
-#SBATCH --mem-per-cpu=50G
+#SBATCH --mem-per-cpu=64G
 #SBATCH --job-name=sa
 #SBATCH --output=cil.out
 #SBATCH --error=cil.err

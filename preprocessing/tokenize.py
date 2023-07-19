@@ -5,6 +5,8 @@ from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
 from string import punctuation 
 
+# from transformers import AutoTokenizer
+
 from tqdm import tqdm
 
 class Tokenizer:
@@ -32,7 +34,7 @@ class Tokenizer:
     def tokenize(
         self,
         sentence: str,  
-        remove_punctuation: bool=True, 
+        remove_punctuation: bool=False, 
         remove_stopwords: bool=True, 
         remove_digits: bool=True,
         stem: bool=True,
@@ -47,9 +49,18 @@ class Tokenizer:
             sentence = sentence.translate(translator) # remove punctuation
         sentence = sentence.split() # split into tokens
         if remove_stopwords:
-            sentence = [w for w in sentence if w not in stoplist] # remove stopwords
+            s = [w for w in sentence if w not in stoplist] # remove stopwords
+            if len(s) > 0:
+                sentence = s
         if remove_digits:
             sentence = [w for w in sentence if not w.isdigit()] # normalize numbers
         if stem:
             sentence = [stemmer.stem(w) for w in sentence] # stem each word
         return sentence
+
+# class BertTWTokenizer:
+#     def __init__(
+#         self,
+#         pretrained_model_name: str='bert-base-uncased',
+#     )
+#         self.tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name)

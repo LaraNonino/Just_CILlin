@@ -5,17 +5,17 @@ from torch.nn.utils.rnn import pad_sequence
 from gensim.models import Word2Vec
 import gensim.downloader as api
 
+import sys
 import numpy as np
-
 from tqdm import tqdm
 
 def create_w2v_embeddings(tokenized_corpus, **word2vec_kwargs):
     # 1. Get pretrained Word2Vec model or train model
-    load_path = word2vec_kwargs.pop("load_path", None)
+    load_path = word2vec_kwargs.pop("load_path", None) # # retrieve path if present
     if load_path:
         w2v = Word2Vec.load(load_path)
     else:
-        save_path = word2vec_kwargs.pop("save_path", None) # retrieve path if is keywords
+        save_path = word2vec_kwargs.pop("save_path", None)
         w2v = Word2Vec(
             tokenized_corpus,
             **word2vec_kwargs,
@@ -32,13 +32,19 @@ def create_w2v_embeddings(tokenized_corpus, **word2vec_kwargs):
         for word in sentence:
             try:
                 embeddings += [w2v.wv[word]]
-            except TypeError:
-                pass
-        embeddings = torch.from_numpy(np.array(embeddings)) # embeddings: (seq_len, embedding_dim)
+            except TypeError: # word not in dictionary 
+                sim_score, sim_word = w2v.wv.most_similar(word, topn=1)[0]
+                if sim_score >= 0.95:
+                    embeddings += [w2v.wv[sim_word]]
+        if len(embeddings) == 0:
+            # print(f"No words for {sentence}!", file=sys.stderr)
+            embeddings = [np.zeros((1, word2vec_kwargs["vector_size"]))]
+        # embeddings = torch.from_numpy(np.array(embeddings)) # embeddings: (seq_len, embedding_dim)
+        embeddings = np.array(embeddings, dtype=object)
         X += [embeddings] # list of torch tensors
     # torch.save(X, "trained_models/w2v_embeddings_100.pt")
-    X = pad_sequence(X, batch_first=True) # (corpus_length, max_seq_len, embedding_dim)
-    return X
+    # X = pad_sequence(X, batch_first=True) # (corpus_length, max_seq_len, embedding_dim)
+    return np.array(X)
 
 def get_pretrained_glove_embeddings(tokenized_corpus, **glove_kwargs):
     dim_name = glove_kwargs.get("dim_name") or "glove-twitter-300"
@@ -51,13 +57,18 @@ def get_pretrained_glove_embeddings(tokenized_corpus, **glove_kwargs):
                 embeddings += [glove_embeddings.get_vector(word)]
         embeddings = torch.from_numpy(np.array(embeddings)) # embeddings: (seq_len, embedding_dim)
         X += [embeddings]
-    X = pad_sequence(X, batch_first=True) # (batch_size, max_seq_len, embedding_dim)
-    return X
+    # X = pad_sequence(X, batch_first=True) # (batch_size, max_seq_len, embedding_dim)
+    return np.array(X)
 
 def get_pretrained_fasttext_embeddings(tokenized_corpus, **fasttext_kwargs):
     glove_embeddings = FastText(language='en', **fasttext_kwargs)
     X = []
     for sentence in tokenized_corpus:
         X += [glove_embeddings.get_vecs_by_tokens(sentence, lower_case_backup=True)]
-    X = pad_sequence(X, batch_first=True) # (batch_size, max_seq_len, embedding_dim)
-    return X
+    # X = pad_sequence(X, batch_first=True) # (batch_size, max_seq_len, embedding_dim)
+    return np.array(X)
+
+def pad_batch(batch):
+    x, y = batch
+    x = pad_sequence(x, batch_first=True)
+    return x, y # x: (batch_size, max_seq_len, embedding_dim)

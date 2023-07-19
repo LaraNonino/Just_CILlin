@@ -5,46 +5,48 @@ from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 import torch
 import torch.nn as nn
 
+
+
 from dataset.twitter_dataset import TwitterDataModule
 from recipes.sentiment_analysis import SentimentAnalysisNet
 
 if __name__ == "__main__":
 
     batch_size = 32
-    embedding_dim = 100
 
-    from preprocessing.embeddings import create_w2v_embeddings
-    from string import punctuation 
-    translator = str.maketrans('','', punctuation)
+    # from preprocessing.embeddings import create_w2v_embeddings, pad_batch
+    # from string import punctuation 
+    # translator = str.maketrans('','', punctuation)
 
-    dm = TwitterDataModule(
-        "twitter-datasets/tokenized.txt",
-        "twitter-datasets/test_data.txt",
-        # 1. Count vectorizer
-        # convert_to_features=count_vectorizer.fit_transform,
-        # # tokenizer=Tokenizer("tokenized.txt", return_as_matrix=False),
-        # tokenizer=lambda x: [tweet.translate(translator) for tweet in x],
-        # 2. Word2Vec 
-        convert_to_features=create_w2v_embeddings,
-        convert_to_features_kwargs={
-            "save_path": "trained_models/w2v_tokenized_100.model",
-            "workers": 8,
-            "vector_size": embedding_dim,
-            "min_count": 1,
-            "window": 5,
-            "sample": 1e-3,
-        },
-        tokenizer=lambda x: [tweet.translate(translator).split() for tweet in x],
-        # save_embeddings_path="w2v_embeddings_300.pt",
-        batch_size=batch_size,
-    )
+    # print("Preparing datamodule")
+    # dm = TwitterDataModule(
+    #     "twitter-datasets/tokenized.txt",
+    #     "twitter-datasets/test_data.txt",
+    #     # 1. Count vectorizer
+    #     # convert_to_features=count_vectorizer.fit_transform,
+    #     # # tokenizer=Tokenizer("tokenized.txt", return_as_matrix=False),
+    #     # tokenizer=lambda x: [tweet.translate(translator) for tweet in x],
+    #     # 2. Word2Vec 
+    #     convert_to_features=create_w2v_embeddings,
+    #     convert_to_features_kwargs={
+    #         "load_path": "trained_models/w2v_euler_100.model",
+    #         "workers": 8,
+    #         "vector_size": 100,
+    #         "min_count": 1,
+    #         "window": 5,
+    #         "negative": 0
+    #     },
+    #     tokenizer=lambda x: [tweet.translate(translator).split() for tweet in x],
+    #     collate_fn=pad_batch,
+    #     batch_size=batch_size,
+    # )
 
-    # Run datamodule to check input dimensions
-    dm.setup(stage="fit")
-    # print(dm.dims)
-    quit()
+    # # Run datamodule to check input dimensions
+    # dm.setup(stage="fit")
+    # quit()
 
     # Choose tokenizer/embedding
+
     # 1) CountVectorizer:
     # from sklearn.feature_extraction.text import CountVectorizer
     # import nltk
@@ -64,24 +66,24 @@ if __name__ == "__main__":
     # )
 
     # 2) Word2Vec
-    from preprocessing.tokenize import Tokenizer
-    from preprocessing.embeddings import create_w2v_embeddings
+    # from preprocessing.tokenize import Tokenizer
+    # from preprocessing.embeddings import create_w2v_embeddings
 
-    dm = TwitterDataModule(
-        "twitter-datasets/train_pos_full.txt",
-        "twitter-datasets/train_neg_full.txt",
-        "twitter-datasets/test_data.txt",
-        convert_to_features=create_w2v_embeddings,
-        convert_to_features_kwargs={
-            "workers": 8,
-            "vector_size": embedding_dim,
-            "min_count": 1,
-            "window": 5,
-            "sample": 1e-3,
-        },
-        tokenizer=Tokenizer(),
-        batch_size=batch_size,
-    )
+    # dm = TwitterDataModule(
+    #     "twitter-datasets/train_pos_full.txt",
+    #     "twitter-datasets/train_neg_full.txt",
+    #     "twitter-datasets/test_data.txt",
+    #     convert_to_features=create_w2v_embeddings,
+    #     convert_to_features_kwargs={
+    #         "workers": 8,
+    #         "vector_size": embedding_dim,
+    #         "min_count": 1,
+    #         "window": 5,
+    #         "sample": 1e-3,
+    #     },
+    #     tokenizer=Tokenizer(),
+    #     batch_size=batch_size,
+    # )
 
     # 3) Pretrained Glove embeddings
     # from preprocessing.tokenize import Tokenizer
@@ -99,9 +101,26 @@ if __name__ == "__main__":
     #     batch_size=batch_size,
     # )
 
+    # 4) Bert embeddings
+    PRE_TRAINED_MODEL_NAME = 'distilbert-base-uncased'
+    from transformers import AutoTokenizer
+
+    tokenizer = AutoTokenizer.from_pretrained(PRE_TRAINED_MODEL_NAME)
+    dm = TwitterDataModule(
+        ["twitter-datasets/train_pos_full.txt", "twitter-datasets/train_neg_full.txt"],
+        "twitter-datasets/test_data.txt",
+        tokenizer=tokenizer,
+        tokenizer_kwargs={
+            "truncation": True,
+            "padding": True,
+        },
+        batch_size=batch_size,
+    )
+
+
     # Run datamodule to check input dimensions
     dm.setup(stage="fit")
-    print(dm.dims)
+    print("done")
 
     # from models.rnn import RNNClassifier
     # model = RNNClassifier(

@@ -10,3 +10,5 @@ nltk
 gensim
 wandb
 tqdm
+tensorboard
+transformers

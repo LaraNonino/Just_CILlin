@@ -18,11 +18,11 @@ class TwitterDataModule(L.LightningDataModule):
         self,
         path_train: Union[List[str], str],
         path_predict: str,
-        convert_to_features: Callable,
+        convert_to_features: Callable=None,
         convert_to_features_kwargs: Dict=None,
         tokenizer: Callable=None,
         tokenizer_kwargs: Dict=None,
-        save_embeddings_path: str=None,
+        collate_fn: Callable=None,
         val_percentage: float=0.1,
         batch_size: int=32,
     ) -> None:
@@ -34,7 +34,7 @@ class TwitterDataModule(L.LightningDataModule):
         self.convert_to_features_kwargs = convert_to_features_kwargs or {}
         self.tokenizer = tokenizer
         self.tokenizer_kwargs = tokenizer_kwargs or {}
-        self.save_embeddings_path = save_embeddings_path
+        self.collate_fn = collate_fn
         self.batch_size = batch_size
 
     def setup(self, stage: str=None) -> None:
@@ -50,23 +50,21 @@ class TwitterDataModule(L.LightningDataModule):
                 labels = torch.tensor([POSITIVE] * (len(tweets) // 2) + [NEGATIVE] * (len(tweets) // 2), dtype=torch.float).unsqueeze(1) # assuming same number of positive and negative
             
             # Tokenization
-            if self.tokenizer is not None:
+            if self.tokenizer:
                 tweets = self.tokenizer(tweets, **self.tokenizer_kwargs) 
-                
+            print("tokenized!")
             # Feature extraction
-            tweets = self.convert_to_features(tweets, **self.convert_to_features_kwargs) 
+            if self.convert_to_features:
+                tweets = self.convert_to_features(tweets, **self.convert_to_features_kwargs) 
+
             if isinstance(tweets, csr_matrix): # CountVectorizer
                 tweets = torch.from_numpy(tweets.todense()).float()
-            # else: tweets: torch.tensor
-            
-            # Save embeddings if needed
-            if self.save_embeddings_path:
-                torch.save(tweets, self.save_embeddings_path)
+            # else: tweets: torch.tensor or np.array
             
             # train, val split
             np.random.seed(1) # reproducibility
-            shuffled_indices = np.random.permutation(tweets.shape[0])
-            split = int((1 - self.val_percentage) * tweets.shape[0])
+            shuffled_indices = np.random.permutation(labels.shape[0])
+            split = int((1 - self.val_percentage) * labels.shape[0])
             train_indices = shuffled_indices[:split]
             val_indices = shuffled_indices[split:]
 
@@ -79,17 +77,15 @@ class TwitterDataModule(L.LightningDataModule):
             if isinstance(tweets, csr_matrix): # CountVectorizer
                 tweets = torch.from_numpy(tweets.todense())
             self.test_data = tweets
-
-        self.dims = (self.batch_size, *(tweets.shape[1:])) # save input dimensions
     
     def train_dataloader(self):
-        return  DataLoader(self.train_data, self.batch_size)
+        return  DataLoader(self.train_data, self.batch_size, collate_fn=self.collate_fn)
     
     def val_dataloader(self):
-        return DataLoader(self.val_data, self.batch_size)
+        return DataLoader(self.val_data, self.batch_size, collate_fn=self.collate_fn)
     
     def predict_dataloader(self):
-        return DataLoader(self.test_data, self.batch_size)
+        return DataLoader(self.test_data, self.batch_size, collate_fn=self.collate_fn)
     
     def _load_tweets(self, path: str):
         tweets = []
@@ -98,49 +94,13 @@ class TwitterDataModule(L.LightningDataModule):
                 tweets.append(line.rstrip())
         return tweets
 
-class RecoverTwitterEmbeddingsDataModule(L.LightningDataModule):
-    def __init__(
-        self,
-        path_train_embeddings: str,
-        path_predict_embeddings: str=None,
-        val_percentage: float=0.1,
-        batch_size: int=32,
-    ) -> None:
-        self.path_train_embeddings = path_train_embeddings
-        self.path_predict_embeddings = path_predict_embeddings
-        self.val_percentage = val_percentage
-        self.batch_size = batch_size
-
-        self.corpus_length = 2500000 # length of full training dataset
-
-    def setup(self, stage: str=None) -> None:
-        """Recovers embeddings from disk and performs train/val split"""
-        if stage is None or stage == "fit":
-            tweets = torch.load(self.path_train_embeddings)
-            labels = labels = torch.tensor([POSITIVE] * (self.corpus_length // 2) + [NEGATIVE] * (self.corpus_length // 2), dtype=torch.float).unsqueeze(1) # assuming using full dataset
-            
-            # train, val split
-            np.random.seed(1) # reproducibility
-            shuffled_indices = np.random.permutation(tweets.shape[0])
-            split = int((1 - self.val_percentage) * tweets.shape[0])
-            train_indices = shuffled_indices[:split]
-            val_indices = shuffled_indices[split:]
-
-            self.train_data = _Dataset(tweets[train_indices], labels[train_indices])
-            self.val_data =  _Dataset(tweets[val_indices], labels[val_indices])
-        
-        if stage is None or stage == "predict":
-            tweets = torch.load(self.path_predict_embeddings)
-        
-        self.dims = (self.batch_size, *(tweets.shape[1:])) 
-
 class _Dataset(Dataset):
     def __init__(self, X, y):
         self.X = X
         self.y = y
     
     def __len__(self):
-        return self.X.shape[0]
+        return self.y.shape[0]
     
     def __getitem__(self, i):
         return self.X[i], self.y[i]
