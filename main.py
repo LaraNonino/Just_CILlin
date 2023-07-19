@@ -5,14 +5,16 @@ from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
 import torch
 import torch.nn as nn
 
-
+import os
+from datetime import datetime
 
 from dataset.twitter_dataset import TwitterDataModule
 from recipes.sentiment_analysis import SentimentAnalysisNet
 
-if __name__ == "__main__":
+def main():
+    L.seed_everything(1, workers=True)
 
-    batch_size = 32
+    batch_size = 20
 
     # from preprocessing.embeddings import create_w2v_embeddings, pad_batch
     # from string import punctuation 
@@ -102,10 +104,10 @@ if __name__ == "__main__":
     # )
 
     # 4) Bert embeddings
-    PRE_TRAINED_MODEL_NAME = 'distilbert-base-uncased'
+    PRETRAINED_MODEL_NAME = 'distilbert-base-uncased'
     from transformers import AutoTokenizer
 
-    tokenizer = AutoTokenizer.from_pretrained(PRE_TRAINED_MODEL_NAME)
+    tokenizer = AutoTokenizer.from_pretrained(PRETRAINED_MODEL_NAME)
     dm = TwitterDataModule(
         ["twitter-datasets/train_pos_full.txt", "twitter-datasets/train_neg_full.txt"],
         "twitter-datasets/test_data.txt",
@@ -120,7 +122,14 @@ if __name__ == "__main__":
 
     # Run datamodule to check input dimensions
     dm.setup(stage="fit")
-    print("done")
+
+    # Model
+    from models.bert import BertPooledClassifier
+    model = BertPooledClassifier(
+        PRETRAINED_MODEL_NAME,
+        classifier=nn.Linear(768, 1)
+    )
+
 
     # from models.rnn import RNNClassifier
     # model = RNNClassifier(
@@ -144,10 +153,10 @@ if __name__ == "__main__":
     # )
     # print(model)
 
-    # net = SentimentAnalysisNet(
-    #     model,
-    #     lr=10e-3,
-    # )
+    net = SentimentAnalysisNet(
+        model,
+        lr=10e-3,
+    )
 
     # wandb_logger = WandbLogger(project="cil")
     # lr_monitor = LearningRateMonitor(logging_interval="step")
@@ -160,12 +169,23 @@ if __name__ == "__main__":
     # )
     # trainer_params = {"callbacks": [lr_monitor, checkpoint_callback]}
 
-    # trainer = L.Trainer(
-    #     max_epochs=1,
-    #     # callbacks=trainer_params["callbacks"],
-    #     # logger=wandb_logger,
-    # )
+    trainer = L.Trainer(
+        max_epochs=1,
+        # callbacks=trainer_params["callbacks"],
+        # logger=wandb_logger,
+    )
 
-    # print("start training...")
-    # trainer.fit(model=net, datamodule=dm)
-    # print("done!")
+    print("start training...")
+    trainer.fit(model=net, datamodule=dm)
+    trainer.validate(net, dm.val_dataloader())
+
+    path = 'out/models/{}'.format(timestamp('%d-%m-%Y-%H:%M:%S'))
+    os.makedirs(path, exist_ok=True)
+    torch.save(model.state_dict(), os.path.join(path, '{}.pt'.format(timestamp('%d-%m-%Y-%H:%M:%S'))))
+
+def timestamp(format):
+    ts = datetime.timestamp(datetime.now())
+    return datetime.fromtimestamp(ts).strftime(format)
+
+if __name__ == "__main__":
+    main()

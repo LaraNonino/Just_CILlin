@@ -17,7 +17,6 @@ class SentimentAnalysisNet(L.LightningModule):
 
         self.model = model
         self.criterion = criterion
-        self.train_accuracy = torchmetrics.Accuracy(task="binary", threshold=0.5)
         self.val_accuracy = torchmetrics.Accuracy(task="binary", threshold=0.5)
         # self.val_confmatrix
         
@@ -44,7 +43,9 @@ class SentimentAnalysisNet(L.LightningModule):
         x, y = batch
         y_hat = self(x)
         loss = self.criterion(y_hat, y)
+        self.val_accuracy.update(y_hat, y)
         self.log("val_loss", loss)
+        self.log("val_acc", self.val_accuracy.compute())
     
     def configure_optimizers(self):
         if self.scheduler is not None:
