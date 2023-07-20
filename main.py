@@ -16,7 +16,6 @@ def main():
     L.seed_everything(1, workers=True)
 
     batch_size = 64
-    learning_rate = 2e-5
 
     # from preprocessing.embeddings import create_w2v_embeddings, pad_batch
     # from string import punctuation 
@@ -127,39 +126,18 @@ def main():
     print("Data module set up.")
 
     # Model
-    from models.bert import BertPooledClassifier
-    from models.attention import SelfAttention
-    model = BertPooledClassifier(
-        PRETRAINED_MODEL_NAME,
-        classifier=nn.Sequential(
-            SelfAttention(
-                embed_dim=768, 
-                q_dim=768,
-                v_dim=256,
-            ),
-            nn.BatchNorm1d(256),
-            nn.ReLU(),
-            nn.Linear(256, 64),
-            nn.BatchNorm1d(64),
-            nn.ReLU(),
-            nn.Linear(64, 8),
-            nn.BatchNorm1d(8),
-            nn.ReLU(),
-            nn.Linear(8, 1),
-        )
-    )
-     
-    # from models.bert import BertUnpooledClassifier
+    # from models.bert import BertPooledClassifier
     # from models.attention import SelfAttention
-    # model = BertUnpooledClassifier(
+    # model = BertPooledClassifier(
     #     PRETRAINED_MODEL_NAME,
     #     classifier=nn.Sequential(
     #         SelfAttention(
     #             embed_dim=768, 
     #             q_dim=768,
     #             v_dim=256,
-    #             collapse=True
     #         ),
+    #         nn.BatchNorm1d(256),
+    #         nn.ReLU(),
     #         nn.Linear(256, 64),
     #         nn.BatchNorm1d(64),
     #         nn.ReLU(),
@@ -169,6 +147,30 @@ def main():
     #         nn.Linear(8, 1),
     #     )
     # )
+     
+    from models.bert import BertUnpooledClassifier
+    from models.attention import SelfAttention3D
+    model = BertUnpooledClassifier(
+        PRETRAINED_MODEL_NAME,
+        classifier=nn.Sequential(
+            SelfAttention3D(
+                embed_dim=768, 
+                q_dim=768,
+                v_dim=256,
+                collapse=True
+            ),
+            nn.Dropout(),
+            nn.Linear(256, 64),
+            nn.BatchNorm1d(64),
+            nn.ReLU(),
+            nn.Dropout(),
+            nn.Linear(64, 8),
+            nn.BatchNorm1d(8),
+            nn.ReLU(),
+            nn.Dropout(),
+            nn.Linear(8, 1),
+        )
+    )
 
 
     # from models.rnn import RNNClassifier
@@ -195,7 +197,9 @@ def main():
 
     net = SentimentAnalysisNet(
         model,
-        lr=learning_rate,
+        lr=2e-5,
+        sched_step_size=2500000//2, # every half an epoch 
+        sched_gamma=0.2,
     )
 
     # wandb_logger = WandbLogger(project="cil")
@@ -210,7 +214,7 @@ def main():
     # trainer_params = {"callbacks": [lr_monitor, checkpoint_callback]}
 
     trainer = L.Trainer(
-        max_epochs=1,
+        max_epochs=3,
         # callbacks=trainer_params["callbacks"],
         # logger=wandb_logger,
         callbacks=[ModelSummary(max_depth=1)],
