@@ -65,21 +65,28 @@ class TwitterDataModule(L.LightningDataModule):
             if isinstance(train_X, csr_matrix) and isinstance(val_X, csr_matrix): # CountVectorizer
                 train_X = torch.from_numpy(train_X.todense()).float()
                 val_X = torch.from_numpy(val_X.todense()).float()
-            # else: tweets: torch.tensor or np.array
 
             if isinstance(train_X, BatchEncoding) and isinstance(val_X, BatchEncoding): # bert encodings
                 self.train_data = _BertDataset(train_X, train_y)
                 self.val_data = _BertDataset(val_X, val_y)
-            else: 
+            else: # train_X, val_X: torch.tensor or np.array
                 self.train_data = _Dataset(train_X, train_y)
                 self.val_data =  _Dataset(val_X, val_y)
             
         if stage is None or stage == "predict":
             test = self._load_tweets(self.path_test)
-            tweets = self.convert_to_features(np.array(test))
+            if self.tokenizer:
+                test = self.tokenizer(test, **self.tokenizer_kwargs)
+            if self.convert_to_features:
+                test = self.convert_to_features(np.array(test))
             if isinstance(tweets, csr_matrix): # CountVectorizer
-                tweets = torch.from_numpy(tweets.todense())
-            self.test_data = tweets
+                test = torch.from_numpy(test.todense())
+
+            if isinstance(test, BatchEncoding):
+                test = _PredictBertDataset(test)
+            else:
+                test = _PredictDataset(test)
+            self.test_data = test
     
     def train_dataloader(self):
         return  DataLoader(self.train_data, self.batch_size, collate_fn=self.collate_fn)
@@ -119,6 +126,17 @@ class _Dataset(Dataset):
     
     def __getitem__(self, i):
         return self.X[i], self.y[i]
+
+class _PredictDataset(Dataset):
+    def __init__(self, X):
+        self.X = X 
+        self.ids = range(1, len(self.X)+1)
+
+    def __len__(self):
+        return len(self.X)
+
+    def __getitem__(self, i):
+        return self.X[i], self.ids[i]
     
 class _BertDataset(Dataset):
     def __init__(self, encodings, labels):
@@ -132,3 +150,16 @@ class _BertDataset(Dataset):
         item = {key: torch.tensor(val[i]) for key, val in self.encodings.items()}
         label = self.labels[i]
         return item, label
+
+class _PredictBertDataset(Dataset):
+    def __init__(self, encodings):
+        self.encodings = encodings 
+        self.ids = range(1, len(self.encodings)+1)
+
+    def __len__(self):
+        return len(self.ids)
+
+    def __getitem__(self, i):
+        item = {key: torch.tensor(val[i]) for key, val in self.encodings.items()}
+        item["id"] = self.ids[i]
+        return item

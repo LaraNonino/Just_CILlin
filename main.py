@@ -12,11 +12,24 @@ from datetime import datetime
 from dataset.twitter_dataset import TwitterDataModule
 from recipes.sentiment_analysis import SentimentAnalysisNet
 
+def timestamp(format):
+    ts = datetime.timestamp(datetime.now())
+    return datetime.fromtimestamp(ts).strftime(format)
+
+def save_predictions(preds, file_name):
+    with open(file_name, 'w+') as file:
+        writer = csv.writer(file)
+        writer.writerow(['Id', 'Prediction'])
+        for line in preds:
+            pred = -1 if line[1].item() == 0 else 1
+            writer.writerow([line[0].item(), pred])
+
 def main():
     L.seed_everything(1, workers=True)
 
     batch_size = 64
 
+    # 1. Dataset
     # from preprocessing.embeddings import create_w2v_embeddings, pad_batch
     # from string import punctuation 
     # translator = str.maketrans('','', punctuation)
@@ -125,7 +138,7 @@ def main():
     dm.setup(stage="fit")
     print("Data module set up.")
 
-    # Model
+    # 2. Model
     # from models.bert import BertPooledClassifier
     # from models.attention import SelfAttention
     # model = BertPooledClassifier(
@@ -195,11 +208,12 @@ def main():
     # )
     # print(model)
 
+    # 3. Lightning net
     net = SentimentAnalysisNet(
         model,
         lr=2e-5,
         sched_step_size=2500000//2, # every half an epoch 
-        sched_gamma=0.2,
+        sched_gamma=0.5,
     )
 
     # wandb_logger = WandbLogger(project="cil")
@@ -213,6 +227,7 @@ def main():
     # )
     # trainer_params = {"callbacks": [lr_monitor, checkpoint_callback]}
 
+    # 4. Train
     trainer = L.Trainer(
         max_epochs=3,
         # callbacks=trainer_params["callbacks"],
@@ -231,9 +246,12 @@ def main():
     os.makedirs(path, exist_ok=True)
     torch.save(model.state_dict(), os.path.join(path, '{}.pt'.format(timestamp('%d-%m-%Y-%H:%M:%S'))))
 
-def timestamp(format):
-    ts = datetime.timestamp(datetime.now())
-    return datetime.fromtimestamp(ts).strftime(format)
+    # 5. Predict
+    # net = SentimentAnalysisNet.load_from_checkpoint("lightning_logs/version_...")
+    predictions = trainer.predict(net, dm.predict_dataloader())
+    path = 'predictions/{}'.format(timestamp('%d-%m-%Y-%H:%M:%S'))
+    os.makedirs(path, exist_ok=True)
+    save_predictions(torch.vstack(predictions), os.path.join(path, 'predictions.csv'))
 
 if __name__ == "__main__":
     main()
