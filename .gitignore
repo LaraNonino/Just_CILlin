@@ -2,7 +2,6 @@ twitter-datasets/
 *.pt
 .DS_Store
 __pycache__/
-lightning_logs/
 .ipynb_checkpoints
 cil.*
 __MACOSX/
@@ -16,3 +15,4 @@ script.sh
 Sentiment_*
 gensim-data
 out
+checkpoints
