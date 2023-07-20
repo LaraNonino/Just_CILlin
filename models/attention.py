@@ -39,16 +39,14 @@ class SelfAttention(nn.Module):
     
     def _scaled_dot_product_attention(self, Q, K, V):
         if len(Q.shape) == 2: # x:(batch_size, embed_dim)
-            prod = torch.bmm(Q, K)
+            prod = torch.bmm(Q.unsqueeze(1), K.unsqueeze(-1))
         else: # x: (batch_size, seq_length, embed_dim)
             prod = torch.bmm(Q, torch.transpose(K, -2, -1))
 
-        scores = torch.div(
-            prod,
-            math.sqrt(self.embed_dim)
-        ) # scale by embed_dim so that the softmax doesn't saturate
+        scores = torch.div(prod, math.sqrt(self.embed_dim)) # scale by embed_dim so that the softmax doesn't saturate
 
         A = F.softmax(scores, dim=-1)
+        print(f"A:{A.shape}")
         H = torch.bmm(A, V)
-
+        print(f"A:{A.shape}, scores:{scores.shape}, H:{H.shape}")
         return H

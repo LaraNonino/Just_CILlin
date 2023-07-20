@@ -15,7 +15,8 @@ from recipes.sentiment_analysis import SentimentAnalysisNet
 def main():
     L.seed_everything(1, workers=True)
 
-    batch_size = 32
+    batch_size = 64
+    learning_rate = 2e-5
 
     # from preprocessing.embeddings import create_w2v_embeddings, pad_batch
     # from string import punctuation 
@@ -131,7 +132,11 @@ def main():
     model = BertPooledClassifier(
         PRETRAINED_MODEL_NAME,
         classifier=nn.Sequential(
-            nn.Linear(768, 256),
+            SelfAttention(
+                embed_dim=768, 
+                q_dim=768,
+                v_dim=256,
+            ),
             nn.BatchNorm1d(256),
             nn.ReLU(),
             nn.Linear(256, 64),
@@ -190,7 +195,7 @@ def main():
 
     net = SentimentAnalysisNet(
         model,
-        lr=10e-3,
+        lr=learning_rate,
     )
 
     # wandb_logger = WandbLogger(project="cil")
