@@ -17,13 +17,12 @@ def timestamp(format):
     ts = datetime.timestamp(datetime.now())
     return datetime.fromtimestamp(ts).strftime(format)
 
-def save_predictions(preds, file_name):
+def save_predictions(predictions, file_name):
     with open(file_name, 'w+') as file:
         writer = csv.writer(file)
         writer.writerow(['Id', 'Prediction'])
-        for i, pred in enumerate(preds):
-            pred = -1 if pred.item() == 0 else 1
-            writer.writerow([i, pred])
+        for i, pred in predictions:
+            writer.writerow([i.item(), pred.item()])
 
 def main():
     L.seed_everything(42, workers=True)
@@ -100,6 +99,7 @@ def main():
             "padding": True,
         },
         batch_size=batch_size,
+        num_workers=2,
     )
 
     # Run datamodule to check input dimensions
@@ -203,14 +203,14 @@ def main():
     print("finished training")
     trainer.validate(net, dm.val_dataloader())
 
-    # path = 'out/{}'.format(timestamp('%d-%m-%Y-%H:%M:%S'))
-    # os.makedirs(path, exist_ok=True)
-    # torch.save(model.state_dict(), os.path.join(path, '{}.pt'.format(timestamp('%d-%m-%Y-%H:%M:%S'))))
+    path = 'out/{}'.format(timestamp('%d-%m-%Y-%H:%M:%S'))
+    os.makedirs(path, exist_ok=True)
+    torch.save(model.state_dict(), os.path.join(path, '{}.pt'.format(timestamp('%d-%m-%Y-%H:%M:%S'))))
 
 
     # 5. Predict
 
-    # dm.setup(stage="predict")
+    dm.setup(stage="predict")
     # net = SentimentAnalysisNet.load_from_checkpoint(
     #     "lightning_logs/version_22136887/checkpoints/epoch=3-step=140628.ckpt",
     #     model,
@@ -218,11 +218,11 @@ def main():
     #     # sched_step_size=(2500000*0.9//batch_size) // 2, # every half an epoch 
     #     # sched_gamma=0.5,
     # )
-    # print("start prediction...")
-    # predictions = trainer.predict(net, dm.predict_dataloader())
-    # path = 'predictions/{}'.format(timestamp('%d-%m-%Y-%H:%M:%S'))
-    # os.makedirs(path, exist_ok=True)
-    # save_predictions(torch.vstack(predictions), os.path.join(path, 'predictions.csv'))
+    print("start prediction...")
+    predictions = trainer.predict(net, dm.predict_dataloader())
+    path = 'predictions/{}'.format(timestamp('%d-%m-%Y-%H:%M:%S'))
+    os.makedirs(path, exist_ok=True)
+    save_predictions(torch.vstack(predictions), os.path.join(path, 'predictions.csv'))
 
 if __name__ == "__main__":
     main()

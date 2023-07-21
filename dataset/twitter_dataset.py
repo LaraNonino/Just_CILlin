@@ -156,4 +156,5 @@ class _PredictBertDataset(Dataset):
 
     def __getitem__(self, i):
         item = {key: torch.tensor(val[i]) for key, val in self.encodings.items()}
+        item["id"] = torch.tensor(i, dtype=torch.long)
         return item
