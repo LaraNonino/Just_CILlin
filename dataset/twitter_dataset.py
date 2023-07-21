@@ -26,6 +26,7 @@ class TwitterDataModule(L.LightningDataModule):
         collate_fn: Callable=None,
         val_percentage: float=0.1,
         batch_size: int=32,
+        num_workers: int=96,
     ) -> None:
         super().__init__()
         self.path_train = path_train
@@ -37,6 +38,7 @@ class TwitterDataModule(L.LightningDataModule):
         self.tokenizer_kwargs = tokenizer_kwargs or {}
         self.collate_fn = collate_fn
         self.batch_size = batch_size
+        self.num_workers = num_workers
 
     def setup(self, stage: str=None) -> None:
         """Recovers data from disk and performs train/val split"""
@@ -90,13 +92,13 @@ class TwitterDataModule(L.LightningDataModule):
             self.predict_data = predict_data
     
     def train_dataloader(self):
-        return  DataLoader(self.train_data, self.batch_size, collate_fn=self.collate_fn)
+        return  DataLoader(self.train_data, self.batch_size, collate_fn=self.collate_fn, num_workers=self.num_workers)
     
     def val_dataloader(self):
-        return DataLoader(self.val_data, self.batch_size, collate_fn=self.collate_fn)
+        return DataLoader(self.val_data, self.batch_size, collate_fn=self.collate_fn, num_workers=self.num_workers)
     
     def predict_dataloader(self):
-        return DataLoader(self.predict_data, self.batch_size, collate_fn=self.collate_fn)
+        return DataLoader(self.predict_data, self.batch_size, collate_fn=self.collate_fn, num_workers=self.num_workers)
     
     def _load_tweets(self, path: str, stage: str):
         tweets = []

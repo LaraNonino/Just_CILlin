@@ -1,7 +1,6 @@
 import pytorch_lightning as L
-from pytorch_lightning.loggers import WandbLogger
-# from pytorch_lightning.callbacks import ModelCheckpoint
-from pytorch_lightning.callbacks import ModelSummary, LearningRateMonitor
+# from pytorch_lightning.loggers import WandbLogger
+# from pytorch_lightning.callbacks import ModelSummary, LearningRateMonitor
 
 import torch
 import torch.nn as nn
@@ -32,37 +31,7 @@ def main():
     batch_size = 64
 
     # 1. Dataset
-    # from preprocessing.embeddings import create_w2v_embeddings, pad_batch
-    # from string import punctuation 
-    # translator = str.maketrans('','', punctuation)
-
-    # print("preparing datamodule")
-    # dm = TwitterDataModule(
-    #     "twitter-datasets/tokenized.txt",
-    #     "twitter-datasets/test_data.txt",
-    #     # 1. Count vectorizer
-    #     # convert_to_features=count_vectorizer.fit_transform,
-    #     # # tokenizer=Tokenizer("tokenized.txt", return_as_matrix=False),
-    #     # tokenizer=lambda x: [tweet.translate(translator) for tweet in x],
-    #     # 2. Word2Vec 
-    #     convert_to_features=create_w2v_embeddings,
-    #     convert_to_features_kwargs={
-    #         "load_path": "trained_models/w2v_euler_100.model",
-    #         "workers": 8,
-    #         "vector_size": 100,
-    #         "min_count": 1,
-    #         "window": 5,
-    #         "negative": 0
-    #     },
-    #     tokenizer=lambda x: [tweet.translate(translator).split() for tweet in x],
-    #     collate_fn=pad_batch,
-    #     batch_size=batch_size,
-    # )
-
-    # # Run datamodule to check input dimensions
-    # dm.setup(stage="fit")
-    # quit()
-
+    
     # Choose tokenizer/embedding
 
     # 1) CountVectorizer:
@@ -221,8 +190,7 @@ def main():
     # 4. Train
     trainer = L.Trainer(
         max_epochs=6,
-        # logger=wandb_logger,
-        callbacks=[ModelSummary(max_depth=5)], # , LearningRateMonitor(logging_interval='step')],
+        # callbacks=[ModelSummary(max_depth=3)], # , LearningRateMonitor(logging_interval='step')],
         deterministic=True, 
         log_every_n_steps=100,
         accelerator="gpu",
@@ -230,6 +198,7 @@ def main():
 
     print("start training...")
     trainer.fit(model=net, datamodule=dm)
+    print("finished training")
     trainer.validate(net, dm.val_dataloader())
 
     # path = 'out/{}'.format(timestamp('%d-%m-%Y-%H:%M:%S'))
