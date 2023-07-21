@@ -51,45 +51,14 @@ class TwitterDataModule(L.LightningDataModule):
             elif isinstance(self.path_train, str):
                 tweets = self._load_tweets(self.path_train) # file of pre-tokenized training data
                 labels = torch.tensor([POSITIVE] * (len(tweets) // 2) + [NEGATIVE] * (len(tweets) // 2), dtype=torch.float).unsqueeze(1) # assuming same number of positive and negative
-            
-            (train_X, train_y), (val_X, val_y) = self._split_dataset(tweets, labels)
+            train_X, train_y, val_X, val_y = self._split_dataset(tweets, labels)
 
-            # Tokenization
-            if self.tokenizer:
-                train_X = self.tokenizer(train_X, **self.tokenizer_kwargs)
-                val_X =  self.tokenizer(val_X, **self.tokenizer_kwargs)
-
-            # Feature extraction
-            if self.convert_to_features:
-                train_X = self.convert_to_features(train_X, **self.convert_to_features_kwargs) 
-                val_X = self.convert_to_features(val_X, **self.convert_to_features_kwargs) 
-
-            if isinstance(train_X, csr_matrix) and isinstance(val_X, csr_matrix): # CountVectorizer
-                train_X = torch.from_numpy(train_X.todense()).float()
-                val_X = torch.from_numpy(val_X.todense()).float()
-
-            if isinstance(train_X, BatchEncoding) and isinstance(val_X, BatchEncoding): # bert encodings
-                self.train_data = _BertDataset(train_X, train_y)
-                self.val_data = _BertDataset(val_X, val_y)
-            else: # train_X, val_X: torch.tensor or np.array
-                self.train_data = _Dataset(train_X, train_y)
-                self.val_data =  _Dataset(val_X, val_y)
+            self.train_data = self._prepare_data(train_X, train_y)
+            self.val_data =  self._prepare_data(val_X, val_y)
             
         if stage is None or stage == "predict":
-            predict_data = self._load_tweets(self.path_predict, "predict")
-            if self.tokenizer:
-                predict_data = self.tokenizer(predict_data, **self.tokenizer_kwargs)
-            if self.convert_to_features:
-                predict_data = self.convert_to_features(np.array(predict_data))
-            if isinstance(predict_data, csr_matrix): # CountVectorizer
-                predict_data = torch.from_numpy(predict_data.todense())
-
-            if isinstance(predict_data, BatchEncoding):
-                print(len(predict_data))
-                predict_data = _PredictBertDataset(predict_data)
-            else:
-                predict_data = _PredictDataset(predict_data)
-            self.predict_data = predict_data
+            predict_X = self._load_tweets(self.path_predict, "predict") # 10000 samples
+            self.predict_data = self._prepare_data(predict_X)
     
     def train_dataloader(self):
         return  DataLoader(self.train_data, self.batch_size, collate_fn=self.collate_fn, num_workers=self.num_workers)
@@ -106,7 +75,7 @@ class TwitterDataModule(L.LightningDataModule):
             for line in tqdm(f):
                 tweet = line.rstrip() 
                 if stage == "predict": 
-                    tweet = ",".join(tweet.split(",", 2)[1:])
+                    tweet = ",".join(tweet.split(",")[1:])
                 tweets.append(tweet)
         return tweets
     
@@ -120,7 +89,29 @@ class TwitterDataModule(L.LightningDataModule):
         train_tweets = np.array(tweets)[train_indices].tolist()
         val_tweets = np.array(tweets)[val_indices].tolist()
 
-        return (train_tweets, labels[train_indices]), (val_tweets, labels[val_indices])
+        return train_tweets, labels[train_indices], val_tweets, labels[val_indices]
+    
+    def _prepare_data(self, X, y=None):
+        # tokenize
+        if self.tokenizer:
+            X = self.tokenizer(X, **self.tokenizer_kwargs)
+        # extract features
+        if self.convert_to_features:
+            X = self.convert_to_features(X, **self.convert_to_features_kwargs) 
+        if isinstance(X, csr_matrix): # CountVectorizer
+            X = torch.from_numpy(X.todense()).float()
+        # dataset 
+        if isinstance(X, BatchEncoding) : # bert encodings
+            if y is not None:
+                dataset = _BertDataset(X, y)
+            else: 
+                dataset = _PredictBertDataset(X)
+        else: # train_X, val_X: torch.tensor or np.array
+            if y is not None:
+                dataset = _Dataset(X, y)
+            else:
+                dataset = _PredictDataset(X)
+        return dataset
 
 class _Dataset(Dataset):
     def __init__(self, X, y):
@@ -161,7 +152,7 @@ class _PredictBertDataset(Dataset):
         self.encodings = encodings 
 
     def __len__(self):
-        return len(self.encodings)
+        return len(self.encodings["input_ids"])
 
     def __getitem__(self, i):
         item = {key: torch.tensor(val[i]) for key, val in self.encodings.items()}

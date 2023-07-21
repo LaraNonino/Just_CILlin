@@ -45,8 +45,7 @@ def main():
     #     max_features=5000 # top features ordered by term frequency across the corpus
     # )
     # dm = TwitterDataModule(
-    #     "twitter-datasets/train_pos_full.txt",
-    #     "twitter-datasets/train_neg_full.txt",
+    #     ["twitter-datasets/train_pos_full.txt", "twitter-datasets/train_neg_full.txt"],
     #     "twitter-datasets/test_data.txt",
     #     count_vectorizer.fit_transform,
     #     batch_size=32
@@ -57,8 +56,7 @@ def main():
     # from preprocessing.embeddings import create_w2v_embeddings
 
     # dm = TwitterDataModule(
-    #     "twitter-datasets/train_pos_full.txt",
-    #     "twitter-datasets/train_neg_full.txt",
+    #     ["twitter-datasets/train_pos_full.txt", "twitter-datasets/train_neg_full.txt"],
     #     "twitter-datasets/test_data.txt",
     #     convert_to_features=create_w2v_embeddings,
     #     convert_to_features_kwargs={
@@ -77,8 +75,7 @@ def main():
     # from preprocessing.embeddings import get_pretrained_glove_embeddings
 
     # dm = TwitterDataModule(
-    #     "twitter-datasets/train_pos_full.txt",
-    #     "twitter-datasets/train_neg_full.txt",
+    #     ["twitter-datasets/train_pos_full.txt", "twitter-datasets/train_neg_full.txt"],
     #     "twitter-datasets/test_data.txt",
     #     convert_to_features=get_pretrained_glove_embeddings,
     #     convert_to_features_kwargs={
@@ -109,7 +106,9 @@ def main():
     dm.setup(stage="fit")
     print("data module set up.")
     
+
     # 2. Model
+
     # from models.bert import BertPooledClassifier
     # from models.attention import SelfAttention
     # model = BertPooledClassifier(
@@ -156,7 +155,6 @@ def main():
         )
     )
 
-
     # from models.rnn import RNNClassifier
     # model = RNNClassifier(
     #     rnn=nn.LSTM(
@@ -179,7 +177,9 @@ def main():
     # )
     # print(model)
 
+
     # 3. Lightning net
+
     net = SentimentAnalysisNet(
         model,
         lr=2e-5,
@@ -187,7 +187,9 @@ def main():
         sched_gamma=0.25,
     )
 
+
     # 4. Train
+
     trainer = L.Trainer(
         max_epochs=6,
         # callbacks=[ModelSummary(max_depth=3)], # , LearningRateMonitor(logging_interval='step')],
@@ -205,7 +207,9 @@ def main():
     # os.makedirs(path, exist_ok=True)
     # torch.save(model.state_dict(), os.path.join(path, '{}.pt'.format(timestamp('%d-%m-%Y-%H:%M:%S'))))
 
+
     # 5. Predict
+
     # dm.setup(stage="predict")
     # net = SentimentAnalysisNet.load_from_checkpoint(
     #     "lightning_logs/version_22136887/checkpoints/epoch=3-step=140628.ckpt",
