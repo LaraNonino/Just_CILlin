@@ -85,7 +85,7 @@ def main():
     # )
 
     # 4) Bert embeddings
-    PRETRAINED_MODEL_NAME = 'distilbert-base-uncased'
+    PRETRAINED_MODEL_NAME = 'distilroberta-base' #'distilbert-base-uncased'
     from transformers import AutoTokenizer
 
     print("prepearing data module...")
@@ -105,55 +105,35 @@ def main():
     # Run datamodule to check input dimensions
     dm.setup(stage="fit")
     print("data module set up.")
-    
 
     # 2. Model
-
-    # from models.bert import BertPooledClassifier
-    # from models.attention import SelfAttention
-    # model = BertPooledClassifier(
+     
+    # from models.bert import BertUnpooledClassifier
+    # from models.attention import SelfAttention3D
+    # model = BertUnpooledClassifier(
     #     PRETRAINED_MODEL_NAME,
     #     classifier=nn.Sequential(
-    #         SelfAttention(
+    #         SelfAttention3D(
     #             embed_dim=768, 
     #             q_dim=768,
     #             v_dim=256,
+    #             collapse=True
     #         ),
-    #         nn.BatchNorm1d(256),
-    #         nn.ReLU(),
+    #         nn.Dropout(p=0.5),
     #         nn.Linear(256, 64),
     #         nn.BatchNorm1d(64),
     #         nn.ReLU(),
+    #         nn.Dropout(p=0.5),
     #         nn.Linear(64, 8),
     #         nn.BatchNorm1d(8),
     #         nn.ReLU(),
+    #         nn.Dropout(p=0.5),
     #         nn.Linear(8, 1),
     #     )
     # )
-     
-    from models.bert import BertUnpooledClassifier
-    from models.attention import SelfAttention3D
-    model = BertUnpooledClassifier(
-        PRETRAINED_MODEL_NAME,
-        classifier=nn.Sequential(
-            SelfAttention3D(
-                embed_dim=768, 
-                q_dim=768,
-                v_dim=256,
-                collapse=True
-            ),
-            nn.Dropout(p=0.5),
-            nn.Linear(256, 64),
-            nn.BatchNorm1d(64),
-            nn.ReLU(),
-            nn.Dropout(p=0.5),
-            nn.Linear(64, 8),
-            nn.BatchNorm1d(8),
-            nn.ReLU(),
-            nn.Dropout(p=0.5),
-            nn.Linear(8, 1),
-        )
-    )
+
+    from models.roberta import RoBERTaClassifier
+    model = RoBERTaClassifier(PRETRAINED_MODEL_NAME)
 
     # from models.rnn import RNNClassifier
     # model = RNNClassifier(
@@ -191,7 +171,7 @@ def main():
     # 4. Train
 
     trainer = L.Trainer(
-        max_epochs=6,
+        max_epochs=3,
         # callbacks=[ModelSummary(max_depth=3)], # , LearningRateMonitor(logging_interval='step')],
         deterministic=True, 
         log_every_n_steps=100,

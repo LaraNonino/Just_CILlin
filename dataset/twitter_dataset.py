@@ -145,6 +145,7 @@ class _BertDataset(Dataset):
     def __getitem__(self, i):
         item = {key: torch.tensor(val[i]) for key, val in self.encodings.items()}
         label = self.labels[i]
+        item["labels"] = label # add labels to pass to bert model
         return item, label
 
 class _PredictBertDataset(Dataset):
@@ -156,5 +157,5 @@ class _PredictBertDataset(Dataset):
 
     def __getitem__(self, i):
         item = {key: torch.tensor(val[i]) for key, val in self.encodings.items()}
-        item["id"] = torch.tensor(i, dtype=torch.long)
+        item["id"] = torch.tensor(i, dtype=torch.long).unsqueeze(1)
         return item
