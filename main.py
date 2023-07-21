@@ -1,13 +1,15 @@
 import pytorch_lightning as L
 from pytorch_lightning.loggers import WandbLogger
-# from pytorch_lightning.callbacks import LearningRateMonitor, ModelCheckpoint
-from pytorch_lightning.callbacks import ModelSummary
+# from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.callbacks import ModelSummary, LearningRateMonitor
 
 import torch
 import torch.nn as nn
 
 import os
+import csv
 from datetime import datetime
+import math
 
 from dataset.twitter_dataset import TwitterDataModule
 from recipes.sentiment_analysis import SentimentAnalysisNet
@@ -20,12 +22,12 @@ def save_predictions(preds, file_name):
     with open(file_name, 'w+') as file:
         writer = csv.writer(file)
         writer.writerow(['Id', 'Prediction'])
-        for line in preds:
-            pred = -1 if line[1].item() == 0 else 1
-            writer.writerow([line[0].item(), pred])
+        for i, pred in enumerate(preds):
+            pred = -1 if pred.item() == 0 else 1
+            writer.writerow([i, pred])
 
 def main():
-    L.seed_everything(1, workers=True)
+    L.seed_everything(42, workers=True)
 
     batch_size = 64
 
@@ -34,7 +36,7 @@ def main():
     # from string import punctuation 
     # translator = str.maketrans('','', punctuation)
 
-    # print("Preparing datamodule")
+    # print("preparing datamodule")
     # dm = TwitterDataModule(
     #     "twitter-datasets/tokenized.txt",
     #     "twitter-datasets/test_data.txt",
@@ -121,7 +123,7 @@ def main():
     PRETRAINED_MODEL_NAME = 'distilbert-base-uncased'
     from transformers import AutoTokenizer
 
-    print("Prepearing data module...")
+    print("prepearing data module...")
     tokenizer = AutoTokenizer.from_pretrained(PRETRAINED_MODEL_NAME)
     dm = TwitterDataModule(
         ["twitter-datasets/train_pos_full.txt", "twitter-datasets/train_neg_full.txt"],
@@ -136,8 +138,8 @@ def main():
 
     # Run datamodule to check input dimensions
     dm.setup(stage="fit")
-    print("Data module set up.")
-
+    print("data module set up.")
+    
     # 2. Model
     # from models.bert import BertPooledClassifier
     # from models.attention import SelfAttention
@@ -172,15 +174,15 @@ def main():
                 v_dim=256,
                 collapse=True
             ),
-            nn.Dropout(),
+            nn.Dropout(p=0.5),
             nn.Linear(256, 64),
             nn.BatchNorm1d(64),
             nn.ReLU(),
-            nn.Dropout(),
+            nn.Dropout(p=0.5),
             nn.Linear(64, 8),
             nn.BatchNorm1d(8),
             nn.ReLU(),
-            nn.Dropout(),
+            nn.Dropout(p=0.5),
             nn.Linear(8, 1),
         )
     )
@@ -212,29 +214,17 @@ def main():
     net = SentimentAnalysisNet(
         model,
         lr=2e-5,
-        sched_step_size=2500000//2, # every half an epoch 
-        sched_gamma=0.5,
+        sched_step_size=1,
+        sched_gamma=0.25,
     )
-
-    # wandb_logger = WandbLogger(project="cil")
-    # lr_monitor = LearningRateMonitor(logging_interval="step")
-    # checkpoint_callback = ModelCheckpoint(
-    #     monitor='valid/loss',
-    #     dirpath='wandb/ckp',
-    #     filename='models-{epoch:02d}-{valid_loss:.2f}',
-    #     save_top_k=3,
-    #     mode='min'
-    # )
-    # trainer_params = {"callbacks": [lr_monitor, checkpoint_callback]}
 
     # 4. Train
     trainer = L.Trainer(
-        max_epochs=3,
-        # callbacks=trainer_params["callbacks"],
+        max_epochs=6,
         # logger=wandb_logger,
-        callbacks=[ModelSummary(max_depth=1)],
+        callbacks=[ModelSummary(max_depth=5)], # , LearningRateMonitor(logging_interval='step')],
         deterministic=True, 
-        log_every_n_steps=125,
+        log_every_n_steps=100,
         accelerator="gpu",
     )
 
@@ -242,16 +232,24 @@ def main():
     trainer.fit(model=net, datamodule=dm)
     trainer.validate(net, dm.val_dataloader())
 
-    path = 'out/{}'.format(timestamp('%d-%m-%Y-%H:%M:%S'))
-    os.makedirs(path, exist_ok=True)
-    torch.save(model.state_dict(), os.path.join(path, '{}.pt'.format(timestamp('%d-%m-%Y-%H:%M:%S'))))
+    # path = 'out/{}'.format(timestamp('%d-%m-%Y-%H:%M:%S'))
+    # os.makedirs(path, exist_ok=True)
+    # torch.save(model.state_dict(), os.path.join(path, '{}.pt'.format(timestamp('%d-%m-%Y-%H:%M:%S'))))
 
     # 5. Predict
-    # net = SentimentAnalysisNet.load_from_checkpoint("lightning_logs/version_...")
-    predictions = trainer.predict(net, dm.predict_dataloader())
-    path = 'predictions/{}'.format(timestamp('%d-%m-%Y-%H:%M:%S'))
-    os.makedirs(path, exist_ok=True)
-    save_predictions(torch.vstack(predictions), os.path.join(path, 'predictions.csv'))
+    # dm.setup(stage="predict")
+    # net = SentimentAnalysisNet.load_from_checkpoint(
+    #     "lightning_logs/version_22136887/checkpoints/epoch=3-step=140628.ckpt",
+    #     model,
+    #     # lr=2e-5,
+    #     # sched_step_size=(2500000*0.9//batch_size) // 2, # every half an epoch 
+    #     # sched_gamma=0.5,
+    # )
+    # print("start prediction...")
+    # predictions = trainer.predict(net, dm.predict_dataloader())
+    # path = 'predictions/{}'.format(timestamp('%d-%m-%Y-%H:%M:%S'))
+    # os.makedirs(path, exist_ok=True)
+    # save_predictions(torch.vstack(predictions), os.path.join(path, 'predictions.csv'))
 
 if __name__ == "__main__":
     main()

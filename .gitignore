@@ -11,3 +11,4 @@ wandb/
 *.pkl
 trained_models/
 out/
+predictions/

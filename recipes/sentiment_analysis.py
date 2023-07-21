@@ -14,11 +14,10 @@ class SentimentAnalysisNet(L.LightningModule):
         sched_gamma: float=None,
     ):
         super().__init__()
-
+        # self.save_hyperparameters()
         self.model = model
         self.criterion = criterion
         self.val_accuracy = torchmetrics.Accuracy(task="binary", threshold=0.5)
-        # self.val_confmatrix
         
         self.lr = lr
         self.optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
@@ -46,6 +45,10 @@ class SentimentAnalysisNet(L.LightningModule):
         self.val_accuracy.update(y_hat, y)
         self.log("val_loss", loss)
         self.log("val_acc", self.val_accuracy.compute())
+
+    def predict_step(self, batch, batch_idx):
+        y_hat = torch.where(self(batch) >= 0.5, 1, 0) # pos: +1, neg: -1
+        return y_hat # torch.stack((batch["id"], y_hat), dim=1)
     
     def configure_optimizers(self):
         if self.scheduler is not None:

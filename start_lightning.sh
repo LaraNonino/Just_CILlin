@@ -1,7 +1,7 @@
 #!/bin/bash
   
 #SBATCH --ntasks-per-node=4
-#SBATCH --time=9:00:00
+#SBATCH --time=10:00:00
 #SBATCH --gpus=1
 #SBATCH --gres=gpumem:32G
 #SBATCH --mem-per-cpu=128G

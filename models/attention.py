@@ -92,13 +92,3 @@ class SelfAttention2D(nn.Module):
         H = torch.bmm(A, V) #  H: (batch_size, seq_len, v_dim)
         
         return H
-    
-# x = torch.ones((10, 7, 16))
-# att = SelfAttention3D(16, q_dim=30, v_dim=8)
-# x = att(x)
-# print(x.shape)
-
-# x = torch.ones((10, 16))
-# att = SelfAttention2D(16, q_dim=30, v_dim=8)
-# x = att(x)
-# print(x.shape)

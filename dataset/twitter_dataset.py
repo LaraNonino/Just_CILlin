@@ -42,8 +42,8 @@ class TwitterDataModule(L.LightningDataModule):
         """Recovers data from disk and performs train/val split"""
         if stage is None or stage == "fit":
             if isinstance(self.path_train, list):
-                positive = self._load_tweets(self.path_train[0])
-                negative = self._load_tweets(self.path_train[1])
+                positive = self._load_tweets(self.path_train[0], "fit")
+                negative = self._load_tweets(self.path_train[1], "fit")
                 tweets = positive + negative
                 labels = torch.tensor([POSITIVE] * len(positive) + [NEGATIVE] * len(negative), dtype=torch.float).unsqueeze(1)
             elif isinstance(self.path_train, str):
@@ -74,19 +74,20 @@ class TwitterDataModule(L.LightningDataModule):
                 self.val_data =  _Dataset(val_X, val_y)
             
         if stage is None or stage == "predict":
-            test = self._load_tweets(self.path_test)
+            predict_data = self._load_tweets(self.path_predict, "predict")
             if self.tokenizer:
-                test = self.tokenizer(test, **self.tokenizer_kwargs)
+                predict_data = self.tokenizer(predict_data, **self.tokenizer_kwargs)
             if self.convert_to_features:
-                test = self.convert_to_features(np.array(test))
-            if isinstance(tweets, csr_matrix): # CountVectorizer
-                test = torch.from_numpy(test.todense())
+                predict_data = self.convert_to_features(np.array(predict_data))
+            if isinstance(predict_data, csr_matrix): # CountVectorizer
+                predict_data = torch.from_numpy(predict_data.todense())
 
-            if isinstance(test, BatchEncoding):
-                test = _PredictBertDataset(test)
+            if isinstance(predict_data, BatchEncoding):
+                print(len(predict_data))
+                predict_data = _PredictBertDataset(predict_data)
             else:
-                test = _PredictDataset(test)
-            self.test_data = test
+                predict_data = _PredictDataset(predict_data)
+            self.predict_data = predict_data
     
     def train_dataloader(self):
         return  DataLoader(self.train_data, self.batch_size, collate_fn=self.collate_fn)
@@ -95,13 +96,16 @@ class TwitterDataModule(L.LightningDataModule):
         return DataLoader(self.val_data, self.batch_size, collate_fn=self.collate_fn)
     
     def predict_dataloader(self):
-        return DataLoader(self.test_data, self.batch_size, collate_fn=self.collate_fn)
+        return DataLoader(self.predict_data, self.batch_size, collate_fn=self.collate_fn)
     
-    def _load_tweets(self, path: str):
+    def _load_tweets(self, path: str, stage: str):
         tweets = []
         with open(path, 'r', encoding='utf-8') as f:
             for line in tqdm(f):
-                tweets.append(line.rstrip())
+                tweet = line.rstrip() 
+                if stage == "predict": 
+                    tweet = ",".join(tweet.split(",", 2)[1:])
+                tweets.append(tweet)
         return tweets
     
     def _split_dataset(self, tweets, labels):
@@ -130,13 +134,12 @@ class _Dataset(Dataset):
 class _PredictDataset(Dataset):
     def __init__(self, X):
         self.X = X 
-        self.ids = range(1, len(self.X)+1)
 
     def __len__(self):
         return len(self.X)
 
     def __getitem__(self, i):
-        return self.X[i], self.ids[i]
+        return self.X[i]
     
 class _BertDataset(Dataset):
     def __init__(self, encodings, labels):
@@ -154,12 +157,10 @@ class _BertDataset(Dataset):
 class _PredictBertDataset(Dataset):
     def __init__(self, encodings):
         self.encodings = encodings 
-        self.ids = range(1, len(self.encodings)+1)
 
     def __len__(self):
-        return len(self.ids)
+        return len(self.encodings)
 
     def __getitem__(self, i):
         item = {key: torch.tensor(val[i]) for key, val in self.encodings.items()}
-        item["id"] = self.ids[i]
         return item
