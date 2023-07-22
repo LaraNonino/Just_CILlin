@@ -54,7 +54,7 @@ class TwitterDataModule(L.LightningDataModule):
             train_X, train_y, val_X, val_y = self._split_dataset(tweets, labels)
 
             self.train_data = self._prepare_data(train_X, train_y)
-            self.val_data =  self._prepare_data(val_X, val_y)
+            self.val_data = self._prepare_data(val_X, val_y)
             
         if stage is None or stage == "predict":
             predict_X = self._load_tweets(self.path_predict, "predict") # 10000 samples
@@ -157,5 +157,5 @@ class _PredictBertDataset(Dataset):
 
     def __getitem__(self, i):
         item = {key: torch.tensor(val[i]) for key, val in self.encodings.items()}
-        item["id"] = torch.tensor(i, dtype=torch.long).unsqueeze(1)
+        item["id"] = torch.tensor([i], dtype=torch.long)
         return item

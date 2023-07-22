@@ -27,7 +27,7 @@ def save_predictions(predictions, file_name):
 def main():
     L.seed_everything(42, workers=True)
 
-    batch_size = 64
+    batch_size = 256
 
     # 1. Dataset
     
@@ -100,6 +100,7 @@ def main():
         },
         batch_size=batch_size,
         num_workers=2,
+        val_percentage=0.25
     )
 
     # Run datamodule to check input dimensions
@@ -164,7 +165,7 @@ def main():
         model,
         lr=2e-5,
         sched_step_size=1,
-        sched_gamma=0.25,
+        sched_gamma=0.1,
     )
 
 
