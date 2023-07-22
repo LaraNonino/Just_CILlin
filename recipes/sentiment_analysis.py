@@ -47,7 +47,7 @@ class SentimentAnalysisNet(L.LightningModule):
         self.log("val_acc", self.val_accuracy.compute())
 
     def predict_step(self, batch, batch_idx):
-        y_hat = torch.where(self(batch) >= 0.5, 1, 0) # pos: +1, neg: -1
+        y_hat = torch.where(self(batch) >= 0.5, 1, -1) # pos: +1, neg: -1
         return torch.stack((batch["id"], y_hat), dim=1)
     
     def configure_optimizers(self):

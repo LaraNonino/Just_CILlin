@@ -1,17 +1,19 @@
 from torch import nn 
 from transformers import AutoModelForSequenceClassification
 
-class RoBERTaClassifier(nn.Module):
+from typing import Dict
+
+class TransformerClassifier(nn.Module):
     def __init__(
         self,
         pretrained_model_name: str="distilroberta-base",
-        hidden_dropout_prob=0.25,
+        model_kwargs: Dict=None
     ):
         super().__init__()
-        self.roberta = AutoModelForSequenceClassification.from_pretrained(
+        self.transformer = AutoModelForSequenceClassification.from_pretrained(
             pretrained_model_name, 
             num_labels=1,
-            hidden_dropout_prob=hidden_dropout_prob,
+            **model_kwargs,
         )
         self.sigmoid = nn.Sigmoid()
 
@@ -19,6 +21,6 @@ class RoBERTaClassifier(nn.Module):
         # x: dict
         input_ids = x["input_ids"]
         attention_mask = x["attention_mask"]
-        x = self.roberta(input_ids= input_ids, attention_mask=attention_mask)
+        x = self.transformer(input_ids= input_ids, attention_mask=attention_mask)
         x = self.sigmoid(x.logits) # x.logits: regression scores before sigmoid
         return x

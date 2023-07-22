@@ -1,6 +1,6 @@
 import pytorch_lightning as L
 # from pytorch_lightning.loggers import WandbLogger
-# from pytorch_lightning.callbacks import ModelSummary, LearningRateMonitor
+from pytorch_lightning.callbacks import ModelSummary, LearningRateMonitor
 
 import torch
 import torch.nn as nn
@@ -85,7 +85,7 @@ def main():
     # )
 
     # 4) Bert embeddings
-    PRETRAINED_MODEL_NAME = 'distilroberta-base' #'distilbert-base-uncased'
+    PRETRAINED_MODEL_NAME =  'cardiffnlp/twitter-roberta-base-sentiment' # 'distilroberta-base' #'distilbert-base-uncased'
     from transformers import AutoTokenizer
 
     print("prepearing data module...")
@@ -100,7 +100,7 @@ def main():
         },
         batch_size=batch_size,
         num_workers=2,
-        val_percentage=0.25
+        val_percentage=0.1
     )
 
     # Run datamodule to check input dimensions
@@ -133,8 +133,13 @@ def main():
     #     )
     # )
 
-    from models.roberta import RoBERTaClassifier
-    model = RoBERTaClassifier(PRETRAINED_MODEL_NAME)
+    from models.transformer import TransformerClassifier
+    model = TransformerClassifier(
+        PRETRAINED_MODEL_NAME,
+        hidden_dropout_prob=0.25,
+        attention_probs_dropout_prob=0.25,
+        ignore_mismatched_sizes=True,
+    )
 
     # from models.rnn import RNNClassifier
     # model = RNNClassifier(
@@ -165,7 +170,7 @@ def main():
         model,
         lr=2e-5,
         sched_step_size=1,
-        sched_gamma=0.1,
+        sched_gamma=0.01,
     )
 
 
@@ -173,7 +178,7 @@ def main():
 
     trainer = L.Trainer(
         max_epochs=3,
-        # callbacks=[ModelSummary(max_depth=3)], # , LearningRateMonitor(logging_interval='step')],
+        callbacks=[ModelSummary(max_depth=5), LearningRateMonitor(logging_interval='step')],
         deterministic=True, 
         log_every_n_steps=100,
         accelerator="gpu",
@@ -204,6 +209,7 @@ def main():
     path = 'predictions/{}'.format(timestamp('%d-%m-%Y-%H:%M:%S'))
     os.makedirs(path, exist_ok=True)
     save_predictions(torch.vstack(predictions), os.path.join(path, 'predictions.csv'))
+    print("finished!")
 
 if __name__ == "__main__":
     main()
