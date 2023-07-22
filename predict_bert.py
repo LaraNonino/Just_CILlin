@@ -3,13 +3,13 @@ import torch
 from datetime import datetime
 from dataset.tw_data import TWBertDataModule
 import pytorch_lightning as L
-from models.simple_bert import SABertModel
+from models.crnn_bert import CRNNBertModel
 
 N_EPOCHS = 1
 LR_RATE = 2e-5
 
-BATCH_SIZE = 16
-N_WORKERS = 12
+BATCH_SIZE = 256
+N_WORKERS = 2
 
 def main():
     L.seed_everything(42, workers=True)
@@ -22,11 +22,11 @@ def main():
     data_module.setup('predict')
     
     # Validate
-    model = SABertModel.load_from_checkpoint("lightning_logs/version_2/checkpoints/epoch=0-step=11250.ckpt", lr=LR_RATE)
+    model = CRNNBertModel.load_from_checkpoint("lightning_logs/crnn_param200/checkpoints/epoch=1-step=17580.ckpt", lr=LR_RATE)
     trainer = L.Trainer(max_epochs=N_EPOCHS, deterministic=True, log_every_n_steps=125, accelerator=device)
     predictions = trainer.predict(model, data_module.predict_dataloader())
 
-    path = 'predictions/version_2/'
+    path = 'predictions/crnn_param200/'
     os.makedirs(path, exist_ok=True)
     save_predictions(torch.vstack(predictions), os.path.join(path, 'predictions.csv'))
 

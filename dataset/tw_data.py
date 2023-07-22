@@ -45,7 +45,7 @@ class TWBertDataModule(L.LightningDataModule):
             self.test_dataset = TweetDataset(encoded_test, ids)
     
     def train_dataloader(self):
-        return  DataLoader(self.train_dataset, self.batch_size, num_workers=self.num_workers)
+        return DataLoader(self.train_dataset, self.batch_size, num_workers=self.num_workers)
     
     def val_dataloader(self):
         return DataLoader(self.val_dataset, self.batch_size, num_workers=self.num_workers)

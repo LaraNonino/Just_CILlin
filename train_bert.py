@@ -1,50 +1,33 @@
-import os
 import torch
-from datetime import datetime
 from dataset.tw_data import TWBertDataModule
 import pytorch_lightning as L
-from models.simple_bert import SABertModel
-from models.rnn_bert import RNNBertModel
 from models.crnn_bert import CRNNBertModel
 
-N_EPOCHS = 1
+N_EPOCHS = 5
 LR_RATE = 2e-5
 
-BATCH_SIZE = 16
-N_WORKERS = 12
+BATCH_SIZE = 256
+N_WORKERS = 48
 
 def main():
-    print('Torch', torch.__version__)
-    print('Cuda', torch.version.cuda)
-
-
-    ts = timestamp('%d-%m-%Y-%H:%M:%S')
     L.seed_everything(42, workers=True)
 
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print('Using {} device'.format(device))
     
     # Load and create datasets
-    data_module = TWBertDataModule("twitter-datasets/train_pos.txt", "twitter-datasets/train_neg.txt", 
+    data_module = TWBertDataModule("twitter-datasets/train_pos_full.txt", "twitter-datasets/train_neg_full.txt", 
                                    batch_size=BATCH_SIZE, val_percentage=0.1, num_workers=N_WORKERS)
     data_module.setup('fit')
     
     # Training
-    # model = SABertModel(lr=LR_RATE)
-    # model = RNNBertModel(lr=LR_RATE)
-    model = CRNNBertModel(lr=LR_RATE)
+    n_steps = len(data_module.train_dataloader())
+    model = CRNNBertModel(lr=LR_RATE, sched_step_size=n_steps//2, sched_gamma=0.5)
 
-    trainer = L.Trainer(max_epochs=N_EPOCHS, deterministic=True, log_every_n_steps=125, accelerator=device)
+    trainer = L.Trainer(max_epochs=N_EPOCHS, deterministic=True, log_every_n_steps=125, 
+                        accelerator=device, callbacks=[L.callbacks.ModelCheckpoint(save_top_k=5, monitor='val_loss')])
     trainer.fit(model, data_module.train_dataloader(), data_module.val_dataloader())
     trainer.validate(model, data_module.val_dataloader())
-    
-    path = 'out/models/{}'.format(ts)
-    os.makedirs(path, exist_ok=True)
-    torch.save(model.state_dict(), os.path.join(path, '{}.pt'.format(ts)))
-
-def timestamp(format):
-    ts = datetime.timestamp(datetime.now())
-    return datetime.fromtimestamp(ts).strftime(format)
 
 if __name__ == "__main__":
     main()

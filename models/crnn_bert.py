@@ -4,7 +4,7 @@ from torch.nn import functional as F
 from transformers import DistilBertModel
 
 class CRNNBertModel(L.LightningModule):
-    def __init__(self, lr):
+    def __init__(self, lr: float=10e-3, sched_step_size: int=None, sched_gamma: float=None):
         super().__init__()
         self.lr = lr
 
@@ -12,14 +12,22 @@ class CRNNBertModel(L.LightningModule):
         # self.bert.weight.requires_grad = False
 
         # self.pre_classifier = torch.nn.Sequential(torch.nn.Linear(768, 768), torch.nn.ReLU())
-        self.cnn = TextCNN(embed_size=768, kernel_sizes=[3, 4, 5], num_channels=[100, 100, 100], output_size=100)
+        self.cnn = TextCNN(embed_size=768, kernel_sizes=[3, 4, 5], num_channels=[100, 100, 100], output_size=200)
         self.cnn.apply(init_weights_cnn)
 
-        self.rnn = BiRNN(embed_size=100, num_hiddens=100, num_layers=2)
+        self.rnn = BiRNN(embed_size=200, num_hiddens=100, num_layers=2)
         self.rnn.apply(init_weights_rnn)
 
         self.dropout = torch.nn.Dropout(0.3)
         self.classifier = torch.nn.Linear(100, 2)
+
+        self.scheduler = None
+        self.optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
+
+        if sched_step_size and sched_gamma:
+            self.scheduler = torch.optim.lr_scheduler.StepLR(
+                self.optimizer, step_size=sched_step_size, gamma=sched_gamma
+            )
 
     def forward(self, input_ids, attention_mask):
         output_bert = self.bert(input_ids=input_ids, attention_mask=attention_mask)
@@ -73,8 +81,9 @@ class CRNNBertModel(L.LightningModule):
         return torch.stack((test_id, preds), dim=1)
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
-        return optimizer
+        if self.scheduler is not None:
+            return [self.optimizer], [self.scheduler]
+        return [self.optimizer]
 
     def _accuracy(self, prediction, target):
         return (prediction == target).sum().item()
