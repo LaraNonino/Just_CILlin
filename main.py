@@ -1,6 +1,6 @@
 import pytorch_lightning as L
 # from pytorch_lightning.loggers import WandbLogger
-from pytorch_lightning.callbacks import ModelSummary, LearningRateMonitor
+from pytorch_lightning.callbacks import ModelSummary, LearningRateMonitor, ModelCheckpoint
 
 import torch
 import torch.nn as nn
@@ -136,9 +136,11 @@ def main():
     from models.transformer import TransformerClassifier
     model = TransformerClassifier(
         PRETRAINED_MODEL_NAME,
-        hidden_dropout_prob=0.25,
-        attention_probs_dropout_prob=0.25,
-        ignore_mismatched_sizes=True,
+        model_kwargs={
+            "hidden_dropout_prob": 0.2,
+            "attention_probs_dropout_prob": 0.2,
+            "ignore_mismatched_sizes": True,
+        }
     )
 
     # from models.rnn import RNNClassifier
@@ -168,7 +170,7 @@ def main():
 
     net = SentimentAnalysisNet(
         model,
-        lr=2e-5,
+        lr=1e-5,
         sched_step_size=1,
         sched_gamma=0.01,
     )
@@ -177,8 +179,12 @@ def main():
     # 4. Train
 
     trainer = L.Trainer(
-        max_epochs=3,
-        callbacks=[ModelSummary(max_depth=5), LearningRateMonitor(logging_interval='step')],
+        max_epochs=2,
+        callbacks=[
+            ModelSummary(max_depth=5), 
+            LearningRateMonitor(logging_interval='step'),
+            ModelCheckpoint(save_top_k=3, monitor='val_loss')
+        ],
         deterministic=True, 
         log_every_n_steps=100,
         accelerator="gpu",

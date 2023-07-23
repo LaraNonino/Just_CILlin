@@ -14,7 +14,7 @@ class SentimentAnalysisNet(L.LightningModule):
         sched_gamma: float=None,
     ):
         super().__init__()
-        # self.save_hyperparameters()
+        self.save_hyperparameters()
         self.model = model
         self.criterion = criterion
         self.val_accuracy = torchmetrics.Accuracy(task="binary", threshold=0.5)
