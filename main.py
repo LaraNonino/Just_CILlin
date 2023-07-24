@@ -26,7 +26,7 @@ def save_predictions(predictions, file_name):
 
 def main():
     L.seed_everything(42, workers=True)
-    batch_size = 256
+    batch_size = 16
 
     # 1. Dataset
     
@@ -69,21 +69,41 @@ def main():
     # )
 
     # 3) Pretrained Glove embeddings
-    from preprocessing.tokenize import Tokenizer
-    from preprocessing.embeddings import get_pretrained_glove_embeddings
+    # from preprocessing.tokenize import Tokenizer
+    # from preprocessing.embeddings import get_pretrained_glove_embeddings, pad_batch
+
+    # embedding_dim = 200
+    # dm = TwitterDataModule(
+    #     ["twitter-datasets/train_pos.txt", "twitter-datasets/train_neg.txt"],
+    #     "twitter-datasets/test_data.txt",
+    #     convert_to_features=get_pretrained_glove_embeddings,
+    #     convert_to_features_kwargs={
+    #         "model_name": "glove-twitter-" + str(embedding_dim), # possible values: 25, 50, 100, 200
+    #     },
+    #     tokenizer=Tokenizer(),
+    #     collate_fn=pad_batch,
+    #     batch_size=batch_size,
+    #     num_workers=2,
+    # )
+
+    # 4) Pretrained Word2Vec embeddings
+    # from preprocessing.tokenize import Tokenizer
+    from preprocessing.embeddings import get_pretrained_word2vec_embeddings, pad_batch
 
     dm = TwitterDataModule(
         ["twitter-datasets/train_pos.txt", "twitter-datasets/train_neg.txt"],
         "twitter-datasets/test_data.txt",
-        convert_to_features=get_pretrained_glove_embeddings,
+        convert_to_features=get_pretrained_word2vec_embeddings,
         convert_to_features_kwargs={
-            "model_name": "glove-twitter-" + str(embedding_dim), # possible values: 25, 50, 100, 200
+            "model_name": "word2vec-google-news-300", # or: "word2vec-ruscorpora-300"
         },
-        tokenizer=Tokenizer(),
+        tokenizer=lambda x: [tweet.split() for tweet in x],
+        collate_fn=pad_batch,
         batch_size=batch_size,
+        num_workers=2,
     )
 
-    # 4) Bert embeddings
+    # 5) Bert embeddings
     # PRETRAINED_MODEL_NAME =  'cardiffnlp/twitter-roberta-base-sentiment' # 'distilroberta-base' #'distilbert-base-uncased'
     # from transformers import AutoTokenizer
 
@@ -105,7 +125,6 @@ def main():
     # Run datamodule to check input dimensions
     dm.setup(stage="fit")
     print("data module set up.")
-    quit()
 
     # 2. Model
      
@@ -133,14 +152,21 @@ def main():
     #     )
     # )
 
-    from models.transformer import TransformerClassifier
-    model = TransformerClassifier(
-        PRETRAINED_MODEL_NAME,
-        model_kwargs={
-            "hidden_dropout_prob": 0.2,
-            "attention_probs_dropout_prob": 0.2,
-            "ignore_mismatched_sizes": True,
-        }
+    # from models.transformer import TransformerClassifier
+    # model = TransformerClassifier(
+    #     PRETRAINED_MODEL_NAME,
+    #     model_kwargs={
+    #         "hidden_dropout_prob": 0.2,
+    #         "attention_probs_dropout_prob": 0.2,
+    #         "ignore_mismatched_sizes": True,
+    #     }
+    # )
+
+    from models.classifier import BiRNNBaseline
+    model = BiRNNBaseline(
+        embed_size=300,
+        hidden_size=200,
+        num_layers=2
     )
 
     # from models.rnn import RNNClassifier
@@ -179,7 +205,7 @@ def main():
     # 4. Train
 
     trainer = L.Trainer(
-        max_epochs=2,
+        max_epochs=1,
         callbacks=[
             ModelSummary(max_depth=5), 
             LearningRateMonitor(logging_interval='step'),
@@ -195,9 +221,9 @@ def main():
     print("finished training")
     trainer.validate(net, dm.val_dataloader())
 
-    path = 'out/{}'.format(timestamp('%d-%m-%Y-%H:%M:%S'))
-    os.makedirs(path, exist_ok=True)
-    torch.save(model.state_dict(), os.path.join(path, '{}.pt'.format(timestamp('%d-%m-%Y-%H:%M:%S'))))
+    # path = 'out/{}'.format(timestamp('%d-%m-%Y-%H:%M:%S'))
+    # os.makedirs(path, exist_ok=True)
+    # torch.save(model.state_dict(), os.path.join(path, '{}.pt'.format(timestamp('%d-%m-%Y-%H:%M:%S'))))
 
 
     # 5. Predict
@@ -210,12 +236,12 @@ def main():
     #     # sched_step_size=(2500000*0.9//batch_size) // 2, # every half an epoch 
     #     # sched_gamma=0.5,
     # )
-    print("start prediction...")
-    predictions = trainer.predict(net, dm.predict_dataloader())
-    path = 'predictions/{}'.format(timestamp('%d-%m-%Y-%H:%M:%S'))
-    os.makedirs(path, exist_ok=True)
-    save_predictions(torch.vstack(predictions), os.path.join(path, 'predictions.csv'))
-    print("finished!")
+    # print("start prediction...")
+    # predictions = trainer.predict(net, dm.predict_dataloader())
+    # path = 'predictions/{}'.format(timestamp('%d-%m-%Y-%H:%M:%S'))
+    # os.makedirs(path, exist_ok=True)
+    # save_predictions(torch.vstack(predictions), os.path.join(path, 'predictions.csv'))
+    # print("finished!")
 
 if __name__ == "__main__":
     main()

@@ -57,10 +57,3 @@ class Tokenizer:
         if stem:
             sentence = [stemmer.stem(w) for w in sentence] # stem each word
         return sentence
-
-# class BertTWTokenizer:
-#     def __init__(
-#         self,
-#         pretrained_model_name: str='bert-base-uncased',
-#     )
-#         self.tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name)
