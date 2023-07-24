@@ -207,7 +207,7 @@ def main():
     # 4. Train
 
     trainer = L.Trainer(
-        max_epochs=1,
+        max_epochs=3,
         callbacks=[
             ModelSummary(max_depth=5), 
             LearningRateMonitor(logging_interval='step'),

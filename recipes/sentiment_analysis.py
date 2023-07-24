@@ -41,6 +41,7 @@ class SentimentAnalysisNet(L.LightningModule):
     def validation_step(self, batch, batch_idx):
         x, y = batch
         y_hat = self(x)
+        print(f"y_hat: {y_hat.shape}, y:{y.shape}")
         loss = self.criterion(y_hat, y)
         self.val_accuracy.update(torch.max(y_hat, dim=-1), y)
         self.log("val_loss", loss)
