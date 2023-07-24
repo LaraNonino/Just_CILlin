@@ -9,13 +9,11 @@ class CRNNBertModel(L.LightningModule):
         self.lr = lr
 
         self.bert = DistilBertModel.from_pretrained("distilbert-base-uncased")
-        # self.bert.weight.requires_grad = False
 
-        # self.pre_classifier = torch.nn.Sequential(torch.nn.Linear(768, 768), torch.nn.ReLU())
-        self.cnn = TextCNN(embed_size=768, kernel_sizes=[3, 4, 5], num_channels=[100, 100, 100], output_size=200)
+        self.cnn = TextCNN(embed_size=768, kernel_sizes=[3, 4, 5], num_channels=[100, 100, 100], output_size=100)
         self.cnn.apply(init_weights_cnn)
 
-        self.rnn = BiRNN(embed_size=200, num_hiddens=100, num_layers=2)
+        self.rnn = BiRNN(embed_size=100, num_hiddens=100, num_layers=2)
         self.rnn.apply(init_weights_rnn)
 
         self.dropout = torch.nn.Dropout(0.3)
@@ -31,7 +29,7 @@ class CRNNBertModel(L.LightningModule):
 
     def forward(self, input_ids, attention_mask):
         output_bert = self.bert(input_ids=input_ids, attention_mask=attention_mask)
-        hidden_state = output_bert[0]
+        hidden_state = output_bert['last_hidden_state']
         hidden_state = self.cnn(hidden_state)
         hidden_state = self.rnn(hidden_state)
         hidden_state = self.dropout(hidden_state)
@@ -39,7 +37,7 @@ class CRNNBertModel(L.LightningModule):
         return output
 
     def cross_entropy_loss(self, logits, labels):
-        return F.cross_entropy(logits, labels)
+        return F.cross_entropy(logits, labels, label_smoothing=0.2)
 
     def training_step(self, train_batch, batch_idx):
         ids = train_batch['input_ids']
