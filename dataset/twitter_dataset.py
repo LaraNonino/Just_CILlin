@@ -44,8 +44,8 @@ class TwitterDataModule(L.LightningDataModule):
         """Recovers data from disk and performs train/val split"""
         if stage is None or stage == "fit":
             if isinstance(self.path_train, list):
-                positive = self._load_tweets(self.path_train[0], "fit")[:100]
-                negative = self._load_tweets(self.path_train[1], "fit")[:100]
+                positive = self._load_tweets(self.path_train[0], "fit")
+                negative = self._load_tweets(self.path_train[1], "fit")
                 tweets = positive + negative
                 labels = torch.tensor([POSITIVE] * len(positive) + [NEGATIVE] * len(negative), dtype=torch.float).unsqueeze(1)
             elif isinstance(self.path_train, str):

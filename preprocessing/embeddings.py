@@ -62,12 +62,15 @@ def get_pretrained_glove_embeddings(tokenized_corpus, **glove_kwargs):
 def get_pretrained_word2vec_embeddings(tokenized_corpus, **glove_kwargs):
     model_name = glove_kwargs.get("model_name") or "word2vec-google-news-300"
     w2v_embeddings = api.load(model_name)
+    embedding_dim = w2v_embeddings.vector_size
     X = []
     for sentence in tokenized_corpus:
         embeddings = []
         for word in sentence:
             if w2v_embeddings.has_index_for(word):
                 embeddings += [w2v_embeddings.get_vector(word)]
+            else:
+                embeddings += [np.zeros(embedding_dim)]
         embeddings = torch.from_numpy(np.array(embeddings)) # embeddings: (seq_len, embedding_dim)
         X += [embeddings]
     # X = pad_sequence(X, batch_first=True) # (corpus_length, max_seq_len, embedding_dim)
