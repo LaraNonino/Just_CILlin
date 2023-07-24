@@ -7,7 +7,7 @@ N_EPOCHS = 5
 LR_RATE = 2e-5
 
 BATCH_SIZE = 256
-N_WORKERS = 48
+N_WORKERS = 2
 
 def main():
     L.seed_everything(42, workers=True)
@@ -21,8 +21,7 @@ def main():
     data_module.setup('fit')
     
     # Training
-    n_steps = len(data_module.train_dataloader())
-    model = CRNNBertModel(lr=LR_RATE, sched_step_size=n_steps//2, sched_gamma=0.5)
+    model = CRNNBertModel(lr=LR_RATE, sched_step_size=1, sched_gamma=0.1)
 
     trainer = L.Trainer(max_epochs=N_EPOCHS, deterministic=True, log_every_n_steps=125, 
                         accelerator=device, callbacks=[L.callbacks.ModelCheckpoint(save_top_k=5, monitor='val_loss')])
