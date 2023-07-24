@@ -88,6 +88,7 @@ class CRNNBertModel(nn.Module):
 
         self.dropout = nn.Dropout(0.3)
         self.classifier = nn.Linear(num_hiddens, 1)
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
         input_ids = x["input_ids"]
@@ -101,12 +102,12 @@ class CRNNBertModel(nn.Module):
         x = self.sigmoid(output)
         return x
 
-class BiRNN(torch.nn.Module):
+class BiRNN(nn.Module):
     def __init__(self, embed_size, num_hiddens, num_layers):
         super().__init__()
         # Set `bidirectional` to True to get a bidirectional RNN
-        self.encoder = torch.nn.LSTM(embed_size, num_hiddens, num_layers=num_layers, bidirectional=True)
-        self.decoder = torch.nn.Linear(4 * num_hiddens, 100)
+        self.encoder = nn.LSTM(embed_size, num_hiddens, num_layers=num_layers, bidirectional=True)
+        self.decoder = nn.Linear(4 * num_hiddens, 100)
 
     def forward(self, inputs):
         inputs = torch.permute(inputs, (1, 0, 2))
