@@ -26,7 +26,6 @@ def save_predictions(predictions, file_name):
 
 def main():
     L.seed_everything(42, workers=True)
-
     batch_size = 256
 
     # 1. Dataset
@@ -70,42 +69,43 @@ def main():
     # )
 
     # 3) Pretrained Glove embeddings
-    # from preprocessing.tokenize import Tokenizer
-    # from preprocessing.embeddings import get_pretrained_glove_embeddings
+    from preprocessing.tokenize import Tokenizer
+    from preprocessing.embeddings import get_pretrained_glove_embeddings
 
+    dm = TwitterDataModule(
+        ["twitter-datasets/train_pos.txt", "twitter-datasets/train_neg.txt"],
+        "twitter-datasets/test_data.txt",
+        convert_to_features=get_pretrained_glove_embeddings,
+        convert_to_features_kwargs={
+            "model_name": "glove-twitter-" + str(embedding_dim), # possible values: 25, 50, 100, 200
+        },
+        tokenizer=Tokenizer(),
+        batch_size=batch_size,
+    )
+
+    # 4) Bert embeddings
+    # PRETRAINED_MODEL_NAME =  'cardiffnlp/twitter-roberta-base-sentiment' # 'distilroberta-base' #'distilbert-base-uncased'
+    # from transformers import AutoTokenizer
+
+    # print("prepearing data module...")
+    # tokenizer = AutoTokenizer.from_pretrained(PRETRAINED_MODEL_NAME)
     # dm = TwitterDataModule(
     #     ["twitter-datasets/train_pos_full.txt", "twitter-datasets/train_neg_full.txt"],
     #     "twitter-datasets/test_data.txt",
-    #     convert_to_features=get_pretrained_glove_embeddings,
-    #     convert_to_features_kwargs={
-    #         "dim_name": "glove-twitter-" + str(embedding_dim), # possible values: 25, 50, 100, 200
+    #     tokenizer=tokenizer,
+    #     tokenizer_kwargs={
+    #         "truncation": True,
+    #         "padding": True,
     #     },
-    #     tokenizer=Tokenizer(),
     #     batch_size=batch_size,
+    #     num_workers=2,
+    #     val_percentage=0.1
     # )
-
-    # 4) Bert embeddings
-    PRETRAINED_MODEL_NAME =  'cardiffnlp/twitter-roberta-base-sentiment' # 'distilroberta-base' #'distilbert-base-uncased'
-    from transformers import AutoTokenizer
-
-    print("prepearing data module...")
-    tokenizer = AutoTokenizer.from_pretrained(PRETRAINED_MODEL_NAME)
-    dm = TwitterDataModule(
-        ["twitter-datasets/train_pos_full.txt", "twitter-datasets/train_neg_full.txt"],
-        "twitter-datasets/test_data.txt",
-        tokenizer=tokenizer,
-        tokenizer_kwargs={
-            "truncation": True,
-            "padding": True,
-        },
-        batch_size=batch_size,
-        num_workers=2,
-        val_percentage=0.1
-    )
 
     # Run datamodule to check input dimensions
     dm.setup(stage="fit")
     print("data module set up.")
+    quit()
 
     # 2. Model
      

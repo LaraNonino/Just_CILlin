@@ -47,8 +47,8 @@ def create_w2v_embeddings(tokenized_corpus, **word2vec_kwargs):
     return np.array(X)
 
 def get_pretrained_glove_embeddings(tokenized_corpus, **glove_kwargs):
-    dim_name = glove_kwargs.get("dim_name") or "glove-twitter-300"
-    glove_embeddings = api.load(dim_name)
+    model_name = glove_kwargs.get("model_name") or "glove-twitter-300"
+    glove_embeddings = api.load(model_name)
     X = []
     for sentence in tokenized_corpus:
         embeddings = []
@@ -59,6 +59,21 @@ def get_pretrained_glove_embeddings(tokenized_corpus, **glove_kwargs):
         X += [embeddings]
     # X = pad_sequence(X, batch_first=True) # (batch_size, max_seq_len, embedding_dim)
     return np.array(X)
+
+def get_pretrained_word2vec_embeddings(tokenized_corpus, **glove_kwargs):
+    model_name = glove_kwargs.get("model_name") or "word2vec-google-news-300"
+    w2v_embeddings = api.load(model_name)
+    X = []
+    for sentence in tokenized_corpus:
+        embeddings = []
+        for word in sentence:
+            if w2v_embeddings.has_index_for(word):
+                embeddings += [w2v_embeddings.get_vector(word)]
+        embeddings = torch.from_numpy(np.array(embeddings)) # embeddings: (seq_len, embedding_dim)
+        X += [embeddings]
+    # X = pad_sequence(X, batch_first=True) # (batch_size, max_seq_len, embedding_dim)
+    return np.array(X)
+
 
 def get_pretrained_fasttext_embeddings(tokenized_corpus, **fasttext_kwargs):
     glove_embeddings = FastText(language='en', **fasttext_kwargs)
