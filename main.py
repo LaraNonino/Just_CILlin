@@ -26,7 +26,7 @@ def save_predictions(predictions, file_name):
 
 def main():
     L.seed_everything(42, workers=True)
-    batch_size = 16
+    batch_size = 256
 
     # 1. Dataset
     
@@ -88,45 +88,50 @@ def main():
 
     # 4) Pretrained Word2Vec embeddings
     # from preprocessing.tokenize import Tokenizer
-    from preprocessing.embeddings import get_pretrained_word2vec_embeddings, pad_batch
+    # from preprocessing.embeddings import get_pretrained_word2vec_embeddings, pad_batch
 
-    dm = TwitterDataModule(
-        ["twitter-datasets/train_pos.txt", "twitter-datasets/train_neg.txt"],
-        "twitter-datasets/test_data.txt",
-        convert_to_features=get_pretrained_word2vec_embeddings,
-        convert_to_features_kwargs={
-            "model_name": "word2vec-google-news-300", # or: "word2vec-ruscorpora-300"
-        },
-        tokenizer=lambda x: [tweet.split() for tweet in x],
-        collate_fn=pad_batch,
-        batch_size=batch_size,
-        num_workers=2,
-    )
-
-    # 5) Bert embeddings
-    # PRETRAINED_MODEL_NAME =  'cardiffnlp/twitter-roberta-base-sentiment' # 'distilroberta-base' #'distilbert-base-uncased'
-    # from transformers import AutoTokenizer
-
-    # print("prepearing data module...")
-    # tokenizer = AutoTokenizer.from_pretrained(PRETRAINED_MODEL_NAME)
     # dm = TwitterDataModule(
-    #     ["twitter-datasets/train_pos_full.txt", "twitter-datasets/train_neg_full.txt"],
+    #     ["twitter-datasets/train_pos.txt", "twitter-datasets/train_neg.txt"],
     #     "twitter-datasets/test_data.txt",
-    #     tokenizer=tokenizer,
-    #     tokenizer_kwargs={
-    #         "truncation": True,
-    #         "padding": True,
+    #     convert_to_features=get_pretrained_word2vec_embeddings,
+    #     convert_to_features_kwargs={
+    #         "model_name": "word2vec-google-news-300", # or: "word2vec-ruscorpora-300"
     #     },
+    #     tokenizer=lambda x: [tweet.split() for tweet in x],
+    #     collate_fn=pad_batch,
     #     batch_size=batch_size,
     #     num_workers=2,
-    #     val_percentage=0.1
     # )
+
+    # 5) Bert embeddings
+    PRETRAINED_MODEL_NAME =  'distilbert-base-uncased' # 'distilroberta-base' #'distilbert-base-uncased'
+    from transformers import AutoTokenizer
+
+    print("prepearing data module...")
+    tokenizer = AutoTokenizer.from_pretrained(PRETRAINED_MODEL_NAME)
+    dm = TwitterDataModule(
+        ["twitter-datasets/train_pos_full.txt", "twitter-datasets/train_neg_full.txt"],
+        "twitter-datasets/test_data.txt",
+        tokenizer=tokenizer,
+        tokenizer_kwargs={
+            "truncation": True,
+            "padding": True,
+        },
+        batch_size=batch_size,
+        num_workers=2,
+        val_percentage=0.1
+    )
 
     # Run datamodule to check input dimensions
     dm.setup(stage="fit")
     print("data module set up.")
 
     # 2. Model
+
+    from models.bert import CRNNBertModel
+
+    model = CRNNBertModel(pretrained_model_name=PRETRAINED_MODEL_NAME)
+
      
     # from models.bert import BertUnpooledClassifier
     # from models.attention import SelfAttention3D
@@ -162,12 +167,12 @@ def main():
     #     }
     # )
 
-    from models.classifier import BiRNNBaseline
-    model = BiRNNBaseline(
-        embed_size=300,
-        hidden_size=200,
-        num_layers=2
-    )
+    # from models.classifier import BiRNNBaseline
+    # model = BiRNNBaseline(
+    #     embed_size=300,
+    #     hidden_size=200,
+    #     num_layers=2
+    # )
 
     # from models.rnn import RNNClassifier
     # model = RNNClassifier(

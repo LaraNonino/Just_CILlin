@@ -84,4 +84,4 @@ class CNNBaseline(nn.Module):
             torch.squeeze(self.relu(self.pool(conv(inputs))), dim=-1)
             for conv in self.convs], dim=1)
         outputs = self.decoder(self.dropout(encoding))
-        return outputs
+        return outputs # (batch_size, )
