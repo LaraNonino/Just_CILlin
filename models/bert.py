@@ -2,8 +2,6 @@ import torch
 from torch import nn
 from transformers import DistilBertModel
 
-from models.classifier import CNNBaseline, BiRNNBaseline
-
 class BertPooledClassifier(nn.Module):
     def __init__(
         self,
@@ -112,14 +110,8 @@ class BiRNN(nn.Module):
     def forward(self, inputs):
         inputs = torch.permute(inputs, (1, 0, 2))
         self.encoder.flatten_parameters()
-        # Returns hidden states of the last hidden layer at different time
-        # steps. The shape of `outputs` is (no. of time steps, batch size,
-        # 2 * no. of hidden units)
         outputs, _ = self.encoder(inputs)
-        # Concatenate the hidden states at the initial and final time steps as
-        # the input of the fully connected layer. Its shape is (batch size,
-        # 4 * no. of hidden units)
-        encoding = torch.cat((outputs[0], outputs[-1]), dim=1)
+        encoding = torch.cat((outputs[0], outputs[-1]), dim=1) # initial and final time steps
         outs = self.decoder(encoding)
         outs = torch.permute(outs, (0, 1))
         return outs
