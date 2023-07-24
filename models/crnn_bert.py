@@ -37,7 +37,7 @@ class CRNNBertModel(L.LightningModule):
         return output
 
     def cross_entropy_loss(self, logits, labels):
-        return F.cross_entropy(logits, labels, label_smoothing=0.2)
+        return F.cross_entropy(logits, labels, label_smoothing=0.1)
 
     def training_step(self, train_batch, batch_idx):
         ids = train_batch['input_ids']
@@ -130,32 +130,22 @@ class TextCNN(torch.nn.Module):
     def forward(self, inputs):
         # Concatenate two embedding layer outputs with shape (batch size, no.
         # of tokens, token vector dimension) along vectors
-        # embeddings = torch.cat((
-            # self.embedding(inputs), self.constant_embedding(inputs)), dim=2)
 
         # Per the input format of one-dimensional convolutional layers,
         # rearrange the tensor so that the second dimension stores channels
-        # embeddings = embeddings.permute(0, 2, 1)
+
         inputs = inputs.permute(0, 2, 1)
 
         # For each one-dimensional convolutional layer, after max-over-time
         # pooling, a tensor of shape (batch size, no. of channels, 1) is
         # obtained. Remove the last dimension and concatenate along channels
-        # encoding = torch.cat([
-        #     torch.squeeze(self.relu(self.pool(conv(inputs))), dim=-1)
-        #     for conv in self.convs], dim=1)
-
+        
         encoding = torch.cat([
             torch.squeeze(self.relu(conv(inputs)), dim=-1)
             for conv in self.convs], dim=1)
         
-        
-        # print(encoding.shape)
         encoding = encoding.permute(0, 2, 1)
-
         outputs = self.decoder(self.dropout(encoding))
-        # outputs = self.dropout(encoding)
-        # print(outputs.shape)
         return outputs
 
 def init_weights_rnn(module):
