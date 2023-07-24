@@ -18,14 +18,12 @@ class RNNClassifier(nn.Module):
         super().__init__()
         self.rnn = rnn
         self.classifier = classifier
-        self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
         # x: (batch_size, max_seq_len, embedding_size)
         x, _ = self.rnn(x) #  x: (batch_size, max_seq_len, hidden_size)
         x = x[:, -1, :] # only take last hidden state per sentence, encoding whole sequence
         x = self.classifier(x) #  x: (batch_size, 2)
-        x = self.sigmoid(x)
         return x
 
 class BiRNNBaseline(RNNClassifier):
@@ -42,7 +40,7 @@ class BiRNNBaseline(RNNClassifier):
             bidirectional=True, 
             batch_first=True
         )
-        classifier = nn.Linear(4 * hidden_size, 1)
+        classifier = nn.Linear(4 * hidden_size, 2)
         super().__init__(lstm, classifier)
         self.apply(init_weights)
 
@@ -50,16 +48,15 @@ class BiRNNBaseline(RNNClassifier):
         # x: (batch_size, seq_len, embed_size)
         x, _ = self.rnn(x) # x: (batch_size, 2 * hidden_size)
         x = torch.cat((x[0], x[-1]), dim=1) # (batch_size, 4 * hidden_size)
-        x = self.classifier(x) # (batch_size, 1)
-        x = self.sigmoid(x)
+        x = self.classifier(x) # (batch_size, 2)
         return x
 
 class CNNBaseline(nn.Module):
     def __init__(
         self, 
-        embed_size, 
-        kernel_sizes, 
-        num_channels
+        embed_size: int, 
+        kernel_sizes: list, 
+        num_channels: list,
     ):
         super().__init__()
         self.convs = nn.ModuleList()
@@ -69,23 +66,19 @@ class CNNBaseline(nn.Module):
         self.relu = nn.ReLU()
         
         self.dropout = nn.Dropout(0.5)
-        self.classifier = nn.Linear(sum(num_channels), 1)
-        self.sigmoid = nn.Sigmoid()
+        self.classifier = nn.Linear(sum(num_channels), 2) 
+        
         self.apply(init_weights)
 
     def forward(self, x):
         # x: (batch_size, seq_len, embed_size)
         x = x.permute(0, 2, 1) # (batch_size, embed_size, seq_len)
-        # For each one-dimensional convolutional layer, after max-over-time
-        # pooling, a tensor of shape (batch size, no. of channels, 1) is
-        # obtained. Remove the last dimension and concatenate along channels
         encoding = torch.cat([
             torch.squeeze(self.relu(
                 self.pool(
                     conv(x) # x: (batch_size, num_channels[i], seq_len)
                 )), # x: (batch_size, num_channels[i], 1)
             dim=-1) for conv in self.convs
-        ], dim=1) # encodings: (batch_size, sum(num_channels))
-        x = self.classifier(self.dropout(encoding))
-        x = self.sigmoid(x)
+        ], dim=1) # encoding: (batch_size, sum(num_channels))
+        x = self.classifier(self.dropout(encoding)) # x: (batch_size, 2)
         return x

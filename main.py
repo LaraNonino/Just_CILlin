@@ -26,7 +26,7 @@ def save_predictions(predictions, file_name):
 
 def main():
     L.seed_everything(42, workers=True)
-    batch_size = 256
+    batch_size = 16
 
     # 1. Dataset
     
@@ -104,7 +104,7 @@ def main():
     # )
 
     # 5) Bert embeddings
-    PRETRAINED_MODEL_NAME =  'distilbert-base-uncased' # 'distilroberta-base' #'distilbert-base-uncased'
+    PRETRAINED_MODEL_NAME =  'distilroberta-base' #'distilbert-base-uncased'
     from transformers import AutoTokenizer
 
     print("prepearing data module...")
@@ -128,11 +128,9 @@ def main():
 
     # 2. Model
 
-    from models.bert import CRNNBertModel
+    # from models.bert import CRNNBert
+    # model = CRNNBertModel(pretrained_model_name=PRETRAINED_MODEL_NAME)
 
-    model = CRNNBertModel(pretrained_model_name=PRETRAINED_MODEL_NAME)
-
-     
     # from models.bert import BertUnpooledClassifier
     # from models.attention import SelfAttention3D
     # model = BertUnpooledClassifier(
@@ -153,19 +151,19 @@ def main():
     #         nn.BatchNorm1d(8),
     #         nn.ReLU(),
     #         nn.Dropout(p=0.5),
-    #         nn.Linear(8, 1),
+    #         nn.Linear(8, 2),
     #     )
     # )
 
-    # from models.transformer import TransformerClassifier
-    # model = TransformerClassifier(
-    #     PRETRAINED_MODEL_NAME,
-    #     model_kwargs={
-    #         "hidden_dropout_prob": 0.2,
-    #         "attention_probs_dropout_prob": 0.2,
-    #         "ignore_mismatched_sizes": True,
-    #     }
-    # )
+    from models.transformer import TransformerClassifier
+    model = TransformerClassifier(
+        PRETRAINED_MODEL_NAME,
+        model_kwargs={
+            "hidden_dropout_prob": 0.2, # "dropout" (BertConfig); "hidden_dropout_prob" (RobertaConfig)
+            "attention_probs_dropout_prob": 0.2,
+            # "ignore_mismatched_sizes": True,
+        }
+    )
 
     # from models.classifier import BiRNNBaseline
     # model = BiRNNBaseline(
@@ -194,7 +192,6 @@ def main():
     #         nn.Sigmoid(),
     #     )
     # )
-    # print(model)
 
 
     # 3. Lightning net
@@ -238,7 +235,7 @@ def main():
     #     "lightning_logs/version_22136887/checkpoints/epoch=3-step=140628.ckpt",
     #     model,
     #     # lr=2e-5,
-    #     # sched_step_size=(2500000*0.9//batch_size) // 2, # every half an epoch 
+    #     # sched_step_size=1, # every half an epoch 
     #     # sched_gamma=0.5,
     # )
     # print("start prediction...")

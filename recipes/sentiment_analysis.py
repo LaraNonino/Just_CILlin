@@ -8,7 +8,7 @@ class SentimentAnalysisNet(L.LightningModule):
     def __init__(
         self, 
         model: nn.Module,
-        criterion: nn.Module=nn.BCELoss(),
+        label_smoothing: float=0.15,
         lr: float=10e-3,
         sched_step_size: int=None,
         sched_gamma: float=None,
@@ -16,7 +16,7 @@ class SentimentAnalysisNet(L.LightningModule):
         super().__init__()
         self.save_hyperparameters()
         self.model = model
-        self.criterion = criterion
+        self.criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing)
         self.val_accuracy = torchmetrics.Accuracy(task="binary", threshold=0.5)
         
         self.lr = lr
@@ -42,12 +42,13 @@ class SentimentAnalysisNet(L.LightningModule):
         x, y = batch
         y_hat = self(x)
         loss = self.criterion(y_hat, y)
-        self.val_accuracy.update(y_hat, y)
+        self.val_accuracy.update(torch.max(y_hat, dim=-1), y)
         self.log("val_loss", loss)
         self.log("val_acc", self.val_accuracy.compute())
 
     def predict_step(self, batch, batch_idx):
-        y_hat = torch.where(self(batch) >= 0.5, 1, -1) # pos: +1, neg: -1
+        y_hat = torch.argmax(self(batch), dim=-1)
+        y_hat = torch.where(y_hat >= 0.5, 1, -1) # pos: +1, neg: -1
         return torch.stack((batch["id"], y_hat), dim=1)
     
     def configure_optimizers(self):
