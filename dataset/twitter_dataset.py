@@ -47,10 +47,10 @@ class TwitterDataModule(L.LightningDataModule):
                 positive = self._load_tweets(self.path_train[0], "fit")
                 negative = self._load_tweets(self.path_train[1], "fit")
                 tweets = positive + negative
-                labels = torch.tensor([POSITIVE] * len(positive) + [NEGATIVE] * len(negative), dtype=torch.float)
+                labels = torch.tensor([POSITIVE] * len(positive) + [NEGATIVE] * len(negative), dtype=torch.long)
             elif isinstance(self.path_train, str):
                 tweets = self._load_tweets(self.path_train) # file of pre-tokenized training data
-                labels = torch.tensor([POSITIVE] * (len(tweets) // 2) + [NEGATIVE] * (len(tweets) // 2), dtype=torch.float) # assuming same number of positive and negative
+                labels = torch.tensor([POSITIVE] * (len(tweets) // 2) + [NEGATIVE] * (len(tweets) // 2), dtype=torch.long) # assuming same number of positive and negative
             train_X, train_y, val_X, val_y = self._split_dataset(tweets, labels)
 
             self.train_data = self._prepare_data(train_X, train_y)
@@ -157,5 +157,5 @@ class _PredictBertDataset(Dataset):
 
     def __getitem__(self, i):
         item = {key: torch.tensor(val[i]) for key, val in self.encodings.items()}
-        item["id"] = torch.tensor([i+1], dtype=torch.long) # from 1 to 10000
+        item["id"] = torch.tensor(i+1, dtype=torch.long) # from 1 to 10000
         return item

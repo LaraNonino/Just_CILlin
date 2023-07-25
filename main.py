@@ -26,7 +26,7 @@ def save_predictions(predictions, file_name):
 
 def main():
     L.seed_everything(42, workers=True)
-    batch_size = 16
+    batch_size = 256
 
     # 1. Dataset
     
@@ -159,8 +159,8 @@ def main():
     model = TransformerClassifier(
         PRETRAINED_MODEL_NAME,
         model_kwargs={
-            "hidden_dropout_prob": 0.2, # "dropout" (BertConfig); "hidden_dropout_prob" (RobertaConfig)
-            "attention_probs_dropout_prob": 0.2,
+            "hidden_dropout_prob": 0.1, # "dropout" (BertConfig); "hidden_dropout_prob" (RobertaConfig)
+            "attention_probs_dropout_prob": 0.1,
             # "ignore_mismatched_sizes": True,
         }
     )
@@ -198,16 +198,17 @@ def main():
 
     net = SentimentAnalysisNet(
         model,
+        label_smoothing=0.1,
         lr=1e-5,
-        sched_step_size=1,
-        sched_gamma=0.01,
+        sched_step_size=3,
+        sched_gamma=0.2,
     )
 
 
     # 4. Train
 
     trainer = L.Trainer(
-        max_epochs=3,
+        max_epochs=6,
         callbacks=[
             ModelSummary(max_depth=5), 
             LearningRateMonitor(logging_interval='step'),
@@ -238,12 +239,12 @@ def main():
     #     # sched_step_size=1, # every half an epoch 
     #     # sched_gamma=0.5,
     # )
-    # print("start prediction...")
-    # predictions = trainer.predict(net, dm.predict_dataloader())
-    # path = 'predictions/{}'.format(timestamp('%d-%m-%Y-%H:%M:%S'))
-    # os.makedirs(path, exist_ok=True)
-    # save_predictions(torch.vstack(predictions), os.path.join(path, 'predictions.csv'))
-    # print("finished!")
+    print("start prediction...")
+    predictions = trainer.predict(net, dm.predict_dataloader())
+    path = 'predictions/{}'.format(timestamp('%d-%m-%Y-%H:%M:%S'))
+    os.makedirs(path, exist_ok=True)
+    save_predictions(torch.vstack(predictions), os.path.join(path, 'predictions.csv'))
+    print("finished!")
 
 if __name__ == "__main__":
     main()
