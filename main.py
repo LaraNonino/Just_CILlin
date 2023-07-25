@@ -104,7 +104,7 @@ def main():
     # )
 
     # 5) Bert embeddings
-    PRETRAINED_MODEL_NAME =  'distilroberta-base' #'distilbert-base-uncased'
+    PRETRAINED_MODEL_NAME =  'cardiffnlp/twitter-roberta-base-sentiment-latest'# 'distilroberta-base' #'distilbert-base-uncased'
     from transformers import AutoTokenizer
 
     print("prepearing data module...")
@@ -200,8 +200,8 @@ def main():
         model,
         label_smoothing=0.1,
         lr=1e-5,
-        sched_step_size=3,
-        sched_gamma=0.2,
+        # sched_step_size=3,
+        # sched_gamma=0.2,
     )
 
 
