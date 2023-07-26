@@ -9,6 +9,7 @@ import os
 import csv
 from datetime import datetime
 import math
+from functools import partial
 
 from dataset.twitter_dataset import TwitterDataModule
 from recipes.sentiment_analysis import SentimentAnalysisNet
@@ -91,8 +92,10 @@ def main():
 
     # 4) Pretrained Word2Vec embeddings
     from preprocessing.tokenize import Tokenizer
-    from preprocessing.embeddings import get_pretrained_word2vec_embeddings, get_embeddings_per_batch
+    import gensim.downloader as api
+    from preprocessing.embeddings import get_pretrained_embeddings
 
+    w2v_embeddings = api.load("word2vec-google-news-300")
     dm = TwitterDataModule(
         ["twitter-datasets/train_pos.txt", "twitter-datasets/train_neg.txt"],
         "twitter-datasets/test_data.txt",
@@ -101,12 +104,9 @@ def main():
         #     "model_name": "word2vec-google-news-300", # or: "word2vec-ruscorpora-300"
         # },
         tokenizer=lambda x: [tweet.split() for tweet in x],
-        collate_fn=get_embeddings_per_batch,
-        # collate_kwargs={
-        #     "model_name": "word2vec-google-news-300", # or: "word2vec-ruscorpora-300"
-        # },
+        collate_fn=partial(get_pretrained_embeddings, embeddings_model=w2v_embeddings),
         batch_size=batch_size,
-        num_workers=2,
+        num_workers=8,
     )
 
     # 5) Bert embeddings
@@ -136,9 +136,11 @@ def main():
 
     # Baselines
     from models.baseline import CNNBaseline, BiRNNBaseline
-    model = CNNBaseline()
-    model = BiRNNBaseline()
-
+    model = CNNBaseline(
+        embed_size=300,
+        kernel_sizes=[3, 4, 5],
+        num_channels=[100, 100, 100]
+    )
     # from models.bert import CRNNBert
     # model = CRNNBertModel(pretrained_model_name=PRETRAINED_MODEL_NAME)
 
@@ -219,7 +221,7 @@ def main():
     # 4. Train
 
     trainer = L.Trainer(
-        max_epochs=5,
+        max_epochs=1,
         callbacks=[
             ModelSummary(max_depth=5), 
             LearningRateMonitor(logging_interval='step'),

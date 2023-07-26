@@ -6,8 +6,7 @@ import gensim.downloader as api
 
 import numpy as np
 from tqdm import tqdm
-
-w2v_embeddings = api.load("word2vec-google-news-300")
+from typing import Callable
 
 def create_w2v_embeddings(tokenized_corpus, **word2vec_kwargs):
     # 1. Get pretrained Word2Vec model or train model
@@ -42,7 +41,6 @@ def create_w2v_embeddings(tokenized_corpus, **word2vec_kwargs):
         # embeddings = torch.from_numpy(np.array(embeddings)) # embeddings: (seq_len, embedding_dim)
         embeddings = np.array(embeddings, dtype=object)
         X += [embeddings] # list of torch tensors
-    # torch.save(X, "trained_models/w2v_embeddings_100.pt")
     # X = pad_sequence(X, batch_first=True) # (corpus_length, max_seq_len, embedding_dim)
     return X # np.array(X)
 
@@ -60,29 +58,36 @@ def get_pretrained_glove_embeddings(tokenized_corpus, **glove_kwargs):
     # X = pad_sequence(X, batch_first=True) # (corpus_length, max_seq_len, embedding_dim)
     return X # np.array(X, dtype=object)
 
-def get_pretrained_word2vec_embeddings(tokenized_corpus):
+def get_pretrained_word2vec_embeddings(batch, model_name="word2vec-google-news-300"):
+    w2v_embeddings = api.load(model_name)
     X = []
-    for sentence in tokenized_corpus:
+    embedding_dim = w2v_embeddings.vector_size
+    for sentence, y in batch:
         embeddings = []
         for word in sentence:
             if w2v_embeddings.has_index_for(word):
                 embeddings += [w2v_embeddings.get_vector(word)]
+            else:
+                embeddings += [np.zeros(embedding_dim)] # unknown token
         embeddings = torch.from_numpy(np.array(embeddings)) # embeddings: (seq_len, embedding_dim)
         X += [embeddings]
-    # X = pad_sequence(X, batch_first=True) # (corpus_length, max_seq_len, embedding_dim)
-    return X # np.array(X, dtype=object)
+    X = pad_sequence(X, batch_first=True) # (batch_size, max_seq_len, embedding_dim)
+    return X
 
-def pad(batch):
-    X = pad_sequence(batch, batch_first=True)
-    return X # X: (batch_size, max_seq_len, embedding_dim)
-
-def get_embeddings_per_batch(batch):
+def get_pretrained_embeddings(batch, embeddings_model): # e.g. embeddings_model = api.load(model_name)
     X = []
     Y = []
-    for x, y in batch:
-        X.append(x)
-        Y.append(y)
-    X = get_pretrained_word2vec_embeddings(X)
-    X = pad_sequence(X, batch_first=True).float()
-    Y = torch.stack(Y).long()
+    embedding_dim = embeddings_model.vector_size
+    for sentence, y in batch:
+        embeddings = []
+        for word in sentence:
+            if embeddings_model.has_index_for(word):
+                embeddings += [embeddings_model.get_vector(word)]
+            else:
+                embeddings += [np.zeros(embedding_dim)] # unknown token
+        embeddings = torch.from_numpy(np.array(embeddings)) # embeddings: (seq_len, embedding_dim)
+        X += [embeddings]
+        Y += [y]
+    X = pad_sequence(X, batch_first=True) # (batch_size, max_seq_len, embedding_dim)
+    Y = torch.stack(Y)
     return X, Y
