@@ -142,7 +142,7 @@ def main():
     # 4. Train
 
     trainer1 = L.Trainer(
-        max_epochs=6,
+        max_epochs=1,
         callbacks=[
             ModelSummary(max_depth=5), 
             LearningRateMonitor(logging_interval='step'),
@@ -155,7 +155,7 @@ def main():
     )
 
     trainer2 = L.Trainer(
-        max_epochs=6,
+        max_epochs=1,
         callbacks=[
             ModelSummary(max_depth=5), 
             LearningRateMonitor(logging_interval='step'),
@@ -168,7 +168,7 @@ def main():
     )
 
     trainer3 = L.Trainer(
-        max_epochs=6,
+        max_epochs=1,
         callbacks=[
             ModelSummary(max_depth=5), 
             LearningRateMonitor(logging_interval='step'),
