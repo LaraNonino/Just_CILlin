@@ -136,8 +136,6 @@ def main():
 
     # Baselines
     from models.baseline import CNNBaseline, BiRNNBaseline
-    model = CNNBaseline()
-    model = BiRNNBaseline()
 
     # from models.bert import CRNNBert
     # model = CRNNBertModel(pretrained_model_name=PRETRAINED_MODEL_NAME)
