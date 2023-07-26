@@ -95,6 +95,7 @@ class TwitterDataModule(L.LightningDataModule):
         # tokenize
         if self.tokenizer:
             X = self.tokenizer(X, **self.tokenizer_kwargs)
+        print(X)
         # extract features
         if self.convert_to_features:
             X = self.convert_to_features(X, **self.convert_to_features_kwargs) 

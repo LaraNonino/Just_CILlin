@@ -15,7 +15,6 @@ class TransformerClassifier(nn.Module):
             num_labels=2,
             **model_kwargs,
         )
-        self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
         # x: dict

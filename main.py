@@ -1,6 +1,6 @@
 import pytorch_lightning as L
 # from pytorch_lightning.loggers import WandbLogger
-from pytorch_lightning.callbacks import ModelSummary, LearningRateMonitor, ModelCheckpoint
+from pytorch_lightning.callbacks import ModelSummary, LearningRateMonitor, ModelCheckpoint, EarlyStopping
 
 import torch
 import torch.nn as nn
@@ -29,7 +29,7 @@ def main():
     batch_size = 256
 
     # 1. Dataset
-    
+
     # Choose tokenizer/embedding
 
     # 1) CountVectorizer:
@@ -56,17 +56,20 @@ def main():
     # dm = TwitterDataModule(
     #     ["twitter-datasets/train_pos_full.txt", "twitter-datasets/train_neg_full.txt"],
     #     "twitter-datasets/test_data.txt",
-    #     convert_to_features=create_w2v_embeddings,
-    #     convert_to_features_kwargs={
-    #         "workers": 8,
-    #         "vector_size": embedding_dim,
-    #         "min_count": 1,
-    #         "window": 5,
-    #         "sample": 1e-3,
-    #     },
-    #     tokenizer=Tokenizer(),
+    #     # convert_to_features=create_w2v_embeddings,
+    #     # convert_to_features_kwargs={
+    #     #     "workers": 8,
+    #     #     "vector_size": embedding_dim,
+    #     #     "min_count": 1,
+    #     #     "window": 5,
+    #     #     "sample": 1e-3,
+    #     # },
+    #     tokenizer=Tokenizer(
+    #         save_to_file="twitter-datasets/train_tokenized.txt"
+    #     ),
     #     batch_size=batch_size,
     # )
+    # dm.setup("fit")
 
     # 3) Pretrained Glove embeddings
     # from preprocessing.tokenize import Tokenizer
@@ -212,7 +215,8 @@ def main():
         callbacks=[
             ModelSummary(max_depth=5), 
             LearningRateMonitor(logging_interval='step'),
-            ModelCheckpoint(save_top_k=3, monitor='val_loss')
+            ModelCheckpoint(save_top_k=3, monitor='val_loss'),
+            EarlyStopping(monitor="val_loss", mode="min")
         ],
         deterministic=True, 
         log_every_n_steps=100,

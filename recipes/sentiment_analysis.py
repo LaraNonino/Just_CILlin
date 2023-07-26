@@ -8,7 +8,7 @@ class SentimentAnalysisNet(L.LightningModule):
     def __init__(
         self, 
         model: nn.Module,
-        label_smoothing: float=0.15,
+        label_smoothing: float=0.1,
         lr: float=10e-3,
         sched_step_size: int=None,
         sched_gamma: float=None,
