@@ -1,5 +1,4 @@
 import torch
-from torchtext.vocab import FastText
 from torch.nn.utils.rnn import pad_sequence
 
 from gensim.models import Word2Vec
@@ -59,8 +58,8 @@ def get_pretrained_glove_embeddings(tokenized_corpus, **glove_kwargs):
     # X = pad_sequence(X, batch_first=True) # (corpus_length, max_seq_len, embedding_dim)
     return X # np.array(X, dtype=object)
 
-def get_pretrained_word2vec_embeddings(tokenized_corpus, **glove_kwargs):
-    model_name = glove_kwargs.get("model_name") or "word2vec-google-news-300"
+def get_pretrained_word2vec_embeddings(tokenized_corpus, **w2v_kwargs):
+    model_name = w2v_kwargs.get("model_name") or "word2vec-google-news-300"
     w2v_embeddings = api.load(model_name)
     X = []
     for sentence in tokenized_corpus:
@@ -73,20 +72,18 @@ def get_pretrained_word2vec_embeddings(tokenized_corpus, **glove_kwargs):
     # X = pad_sequence(X, batch_first=True) # (corpus_length, max_seq_len, embedding_dim)
     return X # np.array(X, dtype=object)
 
-def get_pretrained_fasttext_embeddings(tokenized_corpus, **fasttext_kwargs):
-    glove_embeddings = FastText(language='en', **fasttext_kwargs)
-    X = []
-    for sentence in tokenized_corpus:
-        X += [glove_embeddings.get_vecs_by_tokens(sentence, lower_case_backup=True)]
-    # X = pad_sequence(X, batch_first=True) # (corpus_length, max_seq_len, embedding_dim)
-    return np.array(X, dtype=object)
+def pad(batch):
+    X = pad_sequence(batch, batch_first=True)
+    return X # X: (batch_size, max_seq_len, embedding_dim)
 
-def pad_batch(batch):
+def get_embeddings_per_batch(batch):
     X = []
     Y = []
     for x, y in batch:
-        X += [x]
-        Y += [y]
-    X = pad_sequence(X, batch_first=True)
-    Y = torch.cat(Y)
-    return X, Y # x: (batch_size, max_seq_len, embedding_dim)
+        X.append(x)
+        Y.append(y)
+    X = get_pretrained_word2vec_embeddings(X)
+    X = pad_sequence(X, batch_first=True).float()
+    Y = torch.stack(Y).long()
+    print(X.shape, Y)
+    return X, Y

@@ -33,7 +33,7 @@ class Tokenizer:
         self,
         sentence: str,  
         remove_punctuation: bool=False, 
-        segment_hashtags: bool=True,
+        segment_hashtags: bool=False,
         remove_stopwords: bool=True, 
         remove_digits: bool=True,
         stem: bool=False,

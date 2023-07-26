@@ -24,6 +24,7 @@ class TwitterDataModule(L.LightningDataModule):
         tokenizer: Callable=None,
         tokenizer_kwargs: Dict=None,
         collate_fn: Callable=None,
+        collate_kwargs: Dict=None,
         val_percentage: float=0.1,
         batch_size: int=32,
         num_workers: int=96,
@@ -37,6 +38,7 @@ class TwitterDataModule(L.LightningDataModule):
         self.tokenizer = tokenizer
         self.tokenizer_kwargs = tokenizer_kwargs or {}
         self.collate_fn = collate_fn
+        self.collate_kwargs = collate_kwargs or {}
         self.batch_size = batch_size
         self.num_workers = num_workers
 
@@ -49,7 +51,7 @@ class TwitterDataModule(L.LightningDataModule):
                 tweets = positive + negative
                 labels = torch.tensor([POSITIVE] * len(positive) + [NEGATIVE] * len(negative), dtype=torch.long)
             elif isinstance(self.path_train, str):
-                tweets = self._load_tweets(self.path_train) # file of pre-tokenized training data
+                tweets = self._load_tweets(self.path_train, "fit") # file of pre-tokenized training data
                 labels = torch.tensor([POSITIVE] * (len(tweets) // 2) + [NEGATIVE] * (len(tweets) // 2), dtype=torch.long) # assuming same number of positive and negative
             train_X, train_y, val_X, val_y = self._split_dataset(tweets, labels)
 
@@ -61,6 +63,7 @@ class TwitterDataModule(L.LightningDataModule):
             self.predict_data = self._prepare_data(predict_X)
     
     def train_dataloader(self):
+        collate = self._collate_fn if self.collate_fn is not None else None
         return  DataLoader(self.train_data, self.batch_size, collate_fn=self.collate_fn, num_workers=self.num_workers)
     
     def val_dataloader(self):
@@ -95,7 +98,6 @@ class TwitterDataModule(L.LightningDataModule):
         # tokenize
         if self.tokenizer:
             X = self.tokenizer(X, **self.tokenizer_kwargs)
-        print(X)
         # extract features
         if self.convert_to_features:
             X = self.convert_to_features(X, **self.convert_to_features_kwargs) 
@@ -113,6 +115,15 @@ class TwitterDataModule(L.LightningDataModule):
             else:
                 dataset = _PredictDataset(X)
         return dataset
+    
+    def _collate_fn(self, batch):
+        X = []
+        Y = []
+        for x, y in batch: # x: list[str], y: int
+            X += [x]
+            Y += [y]
+        X = self.collate_fn(X, self.collate_kwargs)
+        return X, y
 
 class _Dataset(Dataset):
     def __init__(self, X, y):

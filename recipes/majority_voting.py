@@ -1,5 +1,4 @@
 import pytorch_lightning as L
-
 import torch
 
 class MajorityVotingNet(L.LightningModule): # only performs inference!
