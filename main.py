@@ -136,8 +136,12 @@ def main():
 
     # Baselines
     from models.baseline import CNNBaseline, BiRNNBaseline
-    model = CNNBaseline()
-    model = BiRNNBaseline()
+    model = CNNBaseline(
+        embed_size=300,
+        kernel_sizes=[3, 4, 5],
+        num_channels=[100, 100, 100]
+    )
+    # model = BiRNNBaseline()
 
     # from models.bert import CRNNBert
     # model = CRNNBertModel(pretrained_model_name=PRETRAINED_MODEL_NAME)
@@ -209,8 +213,8 @@ def main():
 
     net = SentimentAnalysisNet(
         model,
-        label_smoothing=0.1,
-        lr=1e-5,
+        # label_smoothing=0.1,
+        lr=1e-3,
         # sched_step_size=3,
         # sched_gamma=0.2,
     )
@@ -219,7 +223,7 @@ def main():
     # 4. Train
 
     trainer = L.Trainer(
-        max_epochs=6,
+        max_epochs=5,
         callbacks=[
             ModelSummary(max_depth=5), 
             LearningRateMonitor(logging_interval='step'),
