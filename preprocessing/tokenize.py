@@ -3,7 +3,6 @@ nltk.download('stopwords', quiet=True)
 from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
 from string import punctuation 
-from ekphrasis.classes.segmenter import Segmenter
 
 from tqdm import tqdm
 
@@ -33,27 +32,15 @@ class Tokenizer:
         self,
         sentence: str,  
         remove_punctuation: bool=False, 
-        segment_hashtags: bool=True,
         remove_stopwords: bool=True, 
         remove_digits: bool=True,
         stem: bool=False,
     ):    
         sentence = sentence.lower() 
         if remove_punctuation:
-            if segment_hashtags: punctuation.replace("#", "") # keep hashtag
             translator = str.maketrans('','', punctuation)
             sentence = sentence.translate(translator) # remove punctuation
         sentence = sentence.split() # split into tokens
-        if segment_hashtags:
-            segmenter = Segmenter(corpus="twitter")
-            s = []
-            for w in sentence:
-                if w.startswith("#"):
-                    print(w)
-                    s += segmenter.segment(w).split()[1:] # remove hashtag
-                else:
-                    s += [w]
-            sentence = s
         if remove_stopwords:
             stoplist = set(stopwords.words('english'))
             s = [w for w in sentence if w not in stoplist] # remove stopwords

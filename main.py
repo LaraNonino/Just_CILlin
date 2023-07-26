@@ -26,7 +26,7 @@ def save_predictions(predictions, file_name):
 
 def main():
     L.seed_everything(42, workers=True)
-    batch_size = 256
+    batch_size = 16
 
     # 1. Dataset
 
@@ -90,46 +90,54 @@ def main():
     # )
 
     # 4) Pretrained Word2Vec embeddings
-    # from preprocessing.tokenize import Tokenizer
-    # from preprocessing.embeddings import get_pretrained_word2vec_embeddings, pad_batch
+    from preprocessing.tokenize import Tokenizer
+    from preprocessing.embeddings import get_pretrained_word2vec_embeddings, get_embeddings_per_batch
 
-    # dm = TwitterDataModule(
-    #     ["twitter-datasets/train_pos.txt", "twitter-datasets/train_neg.txt"],
-    #     "twitter-datasets/test_data.txt",
-    #     convert_to_features=get_pretrained_word2vec_embeddings,
-    #     convert_to_features_kwargs={
-    #         "model_name": "word2vec-google-news-300", # or: "word2vec-ruscorpora-300"
-    #     },
-    #     tokenizer=lambda x: [tweet.split() for tweet in x],
-    #     collate_fn=pad_batch,
-    #     batch_size=batch_size,
-    #     num_workers=2,
-    # )
-
-    # 5) Bert embeddings
-    PRETRAINED_MODEL_NAME =  'cardiffnlp/twitter-roberta-base-sentiment-latest'# 'distilroberta-base' #'distilbert-base-uncased'
-    from transformers import AutoTokenizer
-
-    print("prepearing data module...")
-    tokenizer = AutoTokenizer.from_pretrained(PRETRAINED_MODEL_NAME)
     dm = TwitterDataModule(
-        ["twitter-datasets/train_pos_full.txt", "twitter-datasets/train_neg_full.txt"],
+        ["twitter-datasets/train_pos.txt", "twitter-datasets/train_neg.txt"],
         "twitter-datasets/test_data.txt",
-        tokenizer=tokenizer,
-        tokenizer_kwargs={
-            "truncation": True,
-            "padding": True,
-        },
+        # convert_to_features=get_pretrained_word2vec_embeddings,
+        # convert_to_features_kwargs={
+        #     "model_name": "word2vec-google-news-300", # or: "word2vec-ruscorpora-300"
+        # },
+        tokenizer=lambda x: [tweet.split() for tweet in x],
+        collate_fn=get_embeddings_per_batch,
+        # collate_kwargs={
+        #     "model_name": "word2vec-google-news-300", # or: "word2vec-ruscorpora-300"
+        # },
         batch_size=batch_size,
         num_workers=2,
-        val_percentage=0.1
     )
+
+    # 5) Bert embeddings
+    # PRETRAINED_MODEL_NAME =  'cardiffnlp/twitter-roberta-base-sentiment-latest'# 'distilroberta-base' #'distilbert-base-uncased'
+    # from transformers import AutoTokenizer
+
+    # print("prepearing data module...")
+    # tokenizer = AutoTokenizer.from_pretrained(PRETRAINED_MODEL_NAME)
+    # dm = TwitterDataModule(
+    #     ["twitter-datasets/train_pos_full.txt", "twitter-datasets/train_neg_full.txt"],
+    #     "twitter-datasets/test_data.txt",
+    #     tokenizer=tokenizer,
+    #     tokenizer_kwargs={
+    #         "truncation": True,
+    #         "padding": True,
+    #     },
+    #     batch_size=batch_size,
+    #     num_workers=2,
+    #     val_percentage=0.1
+    # )
 
     # Run datamodule to check input dimensions
     dm.setup(stage="fit")
     print("data module set up.")
 
     # 2. Model
+
+    # Baselines
+    from models.baseline import CNNBaseline, BiRNNBaseline
+    model = CNNBaseline()
+    model = BiRNNBaseline()
 
     # from models.bert import CRNNBert
     # model = CRNNBertModel(pretrained_model_name=PRETRAINED_MODEL_NAME)
@@ -158,15 +166,15 @@ def main():
     #     )
     # )
 
-    from models.transformer import TransformerClassifier
-    model = TransformerClassifier(
-        PRETRAINED_MODEL_NAME,
-        model_kwargs={
-            "hidden_dropout_prob": 0.1, # "dropout" (BertConfig); "hidden_dropout_prob" (RobertaConfig)
-            "attention_probs_dropout_prob": 0.1,
-            # "ignore_mismatched_sizes": True,
-        }
-    )
+    # from models.transformer import TransformerClassifier
+    # model = TransformerClassifier(
+    #     PRETRAINED_MODEL_NAME,
+    #     model_kwargs={
+    #         "hidden_dropout_prob": 0.1, # "dropout" (BertConfig); "hidden_dropout_prob" (RobertaConfig)
+    #         "attention_probs_dropout_prob": 0.1,
+    #         # "ignore_mismatched_sizes": True,
+    #     }
+    # )
 
     # from models.classifier import BiRNNBaseline
     # model = BiRNNBaseline(
