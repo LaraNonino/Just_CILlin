@@ -29,9 +29,9 @@ class RNNClassifier(nn.Module):
 class BiRNNBaseline(RNNClassifier):
     def __init__(
         self, 
-        embed_size, 
-        hidden_size, 
-        num_layers,
+        embed_size: int, 
+        hidden_size: int=100, 
+        num_layers: int=2,
     ):
         lstm = nn.LSTM(
             embed_size, 

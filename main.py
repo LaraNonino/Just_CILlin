@@ -27,7 +27,7 @@ def save_predictions(predictions, file_name):
 
 def main():
     L.seed_everything(42, workers=True)
-    batch_size = 16
+    batch_size = 256
 
     # 1. Dataset
 
@@ -50,66 +50,23 @@ def main():
     #     batch_size=32
     # )
 
-    # 2) Word2Vec
-    # from preprocessing.tokenize import Tokenizer
-    # from preprocessing.embeddings import create_w2v_embeddings
-
-    # dm = TwitterDataModule(
-    #     ["twitter-datasets/train_pos_full.txt", "twitter-datasets/train_neg_full.txt"],
-    #     "twitter-datasets/test_data.txt",
-    #     # convert_to_features=create_w2v_embeddings,
-    #     # convert_to_features_kwargs={
-    #     #     "workers": 8,
-    #     #     "vector_size": embedding_dim,
-    #     #     "min_count": 1,
-    #     #     "window": 5,
-    #     #     "sample": 1e-3,
-    #     # },
-    #     tokenizer=Tokenizer(
-    #         save_to_file="twitter-datasets/train_tokenized.txt"
-    #     ),
-    #     batch_size=batch_size,
-    # )
-    # dm.setup("fit")
-
-    # 3) Pretrained Glove embeddings
-    # from preprocessing.tokenize import Tokenizer
-    # from preprocessing.embeddings import get_pretrained_glove_embeddings, pad_batch
-
-    # embedding_dim = 200
-    # dm = TwitterDataModule(
-    #     ["twitter-datasets/train_pos.txt", "twitter-datasets/train_neg.txt"],
-    #     "twitter-datasets/test_data.txt",
-    #     convert_to_features=get_pretrained_glove_embeddings,
-    #     convert_to_features_kwargs={
-    #         "model_name": "glove-twitter-" + str(embedding_dim), # possible values: 25, 50, 100, 200
-    #     },
-    #     tokenizer=Tokenizer(),
-    #     collate_fn=pad_batch,
-    #     batch_size=batch_size,
-    #     num_workers=2,
-    # )
-
-    # 4) Pretrained Word2Vec embeddings
+    # 2) Pretrained (Word2Vec / Glove) embeddings
     from preprocessing.tokenize import Tokenizer
     import gensim.downloader as api
     from preprocessing.embeddings import get_pretrained_embeddings
-
-    w2v_embeddings = api.load("word2vec-google-news-300")
+    # word2vec models: # "word2vec-google-news-300", "word2vec-ruscorpora-300"
+    # glove models: "glove-twitter"-" + str(embedding_dim), possible values: 25, 50, 100, 200
+    w2v_embeddings = api.load("glove-twitter-200") 
     dm = TwitterDataModule(
-        ["twitter-datasets/train_pos.txt", "twitter-datasets/train_neg.txt"],
+        ["twitter-datasets/train_pos_full.txt", "twitter-datasets/train_neg_full.txt"],
         "twitter-datasets/test_data.txt",
-        # convert_to_features=get_pretrained_word2vec_embeddings,
-        # convert_to_features_kwargs={
-        #     "model_name": "word2vec-google-news-300", # or: "word2vec-ruscorpora-300"
-        # },
         tokenizer=lambda x: [tweet.split() for tweet in x],
         collate_fn=partial(get_pretrained_embeddings, embeddings_model=w2v_embeddings),
         batch_size=batch_size,
         num_workers=8,
     )
 
-    # 5) Bert embeddings
+    # 3) Transformer embeddings
     # PRETRAINED_MODEL_NAME =  'cardiffnlp/twitter-roberta-base-sentiment-latest'# 'distilroberta-base' #'distilbert-base-uncased'
     # from transformers import AutoTokenizer
 
@@ -137,7 +94,7 @@ def main():
     # Baselines
     from models.baseline import CNNBaseline, BiRNNBaseline
     model = CNNBaseline(
-        embed_size=300,
+        embed_size=200,
         kernel_sizes=[3, 4, 5],
         num_channels=[100, 100, 100]
     )
@@ -221,7 +178,7 @@ def main():
     # 4. Train
 
     trainer = L.Trainer(
-        max_epochs=1,
+        max_epochs=5,
         callbacks=[
             ModelSummary(max_depth=5), 
             LearningRateMonitor(logging_interval='step'),
@@ -245,7 +202,7 @@ def main():
 
     # 5. Predict
 
-    dm.setup(stage="predict")
+    # dm.setup(stage="predict")
     # net = SentimentAnalysisNet.load_from_checkpoint(
     #     "lightning_logs/version_22136887/checkpoints/epoch=3-step=140628.ckpt",
     #     model,
@@ -253,11 +210,12 @@ def main():
     #     # sched_step_size=1, # every half an epoch 
     #     # sched_gamma=0.5,
     # )
-    print("start prediction...")
-    predictions = trainer.predict(net, dm.predict_dataloader())
-    path = 'predictions/{}'.format(timestamp('%d-%m-%Y-%H:%M:%S'))
-    os.makedirs(path, exist_ok=True)
-    save_predictions(torch.vstack(predictions), os.path.join(path, 'predictions.csv'))
+    # print("start prediction...")
+    # predictions = trainer.predict(net, dm.predict_dataloader())
+    # path = 'predictions/{}'.format(timestamp('%d-%m-%Y-%H:%M:%S'))
+    # os.makedirs(path, exist_ok=True)
+    # save_predictions(torch.vstack(predictions), os.path.join(path, 'predictions.csv'))
+    
     print("finished!")
 
 if __name__ == "__main__":
