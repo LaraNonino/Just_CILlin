@@ -37,7 +37,7 @@ class CRNNBertModel(L.LightningModule):
         return output
 
     def cross_entropy_loss(self, logits, labels):
-        return F.cross_entropy(logits, labels, label_smoothing=0.1)
+        return F.cross_entropy(logits, labels)
 
     def training_step(self, train_batch, batch_idx):
         ids = train_batch['input_ids']
