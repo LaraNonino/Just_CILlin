@@ -85,5 +85,4 @@ def get_embeddings_per_batch(batch):
     X = get_pretrained_word2vec_embeddings(X)
     X = pad_sequence(X, batch_first=True).float()
     Y = torch.stack(Y).long()
-    print(X.shape, Y)
     return X, Y

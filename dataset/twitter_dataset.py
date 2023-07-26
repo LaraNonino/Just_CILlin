@@ -123,7 +123,7 @@ class TwitterDataModule(L.LightningDataModule):
             X += [x]
             Y += [y]
         X = self.collate_fn(X, self.collate_kwargs)
-        return X, y
+        return X, Y
 
 class _Dataset(Dataset):
     def __init__(self, X, y):
