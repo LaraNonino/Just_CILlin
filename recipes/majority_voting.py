@@ -13,10 +13,14 @@ class MajorityVotingNet(L.LightningModule): # only performs inference!
         self.nets = nets
 
     def forward(self, x):
+        print("fwd!")
+        print(f"x: {x[0]}")
         predictions = torch.zeros((len(x), 2)) 
         for t, net in zip(self.tokenizers, self.nets):
+            print(f"x: {len(x)}")
             x = t(x)
             y_hat = net(x)
+            print(f"y_hat: {y_hat.shape}")
             predictions += y_hat
         return predictions
     
