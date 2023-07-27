@@ -76,14 +76,14 @@ def main():
 
     net1 = SentimentAnalysisNet(
         model1,
-        label_smoothing=0.1,
+        label_smoothing=0.05,
         lr=2e-5,
         sched_step_size=1,
         sched_gamma=0.1,
     )
 
     trainer1 = L.Trainer(
-        max_epochs=1,
+        max_epochs=3,
         callbacks=[
             ModelSummary(max_depth=5), 
             LearningRateMonitor(logging_interval='step'),
@@ -129,14 +129,14 @@ def main():
 
     net2 = SentimentAnalysisNet(
         model2,
-        label_smoothing=0.1,
+        label_smoothing=0.05,
         lr=1e-5,
         sched_step_size=1,
         sched_gamma=0.1,
     )
 
     trainer2 = L.Trainer(
-        max_epochs=1,
+        max_epochs=3,
         callbacks=[
             ModelSummary(max_depth=5), 
             LearningRateMonitor(logging_interval='step'),
