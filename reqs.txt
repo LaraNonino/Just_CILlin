@@ -8,8 +8,6 @@ scikit-learn
 scipy
 nltk
 gensim
-ekphrasis
-wandb
 tqdm
 tensorboard
 transformers

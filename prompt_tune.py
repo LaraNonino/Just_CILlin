@@ -3,12 +3,8 @@ from pytorch_lightning.callbacks import ModelSummary, LearningRateMonitor, Model
 
 import torch
 import torch.nn as nn
-from transformers import AutoTokenizer
-from peft import (
-    PromptTuningConfig,
-    PrefixTuningConfig,
-    PromptEncoderConfig,
-)
+from transformers import AutoTokenizer, DataCollatorWithPadding
+from peft import PromptTuningConfig, PrefixTuningConfig, PromptEncoderConfig
 
 import os
 import csv
@@ -54,7 +50,7 @@ def main():
         "twitter-datasets/test_data.txt",
         tokenizer=tokenizer,
         tokenizer_kwargs=tokenizer_kwargs,
-        collate_fn=partial(tokenizer.pad, padding="longest", return_tensors="pt"),
+        collate_fn=DataCollatorWithPadding(tokenizer=tokenizer, padding="longest"), # partial(tokenizer.pad, padding="longest", return_tensors="pt"),
         batch_size=batch_size,
         num_workers=2,
         val_percentage=0.1
@@ -62,7 +58,7 @@ def main():
     dm.setup("fit")
     print("data module set up.")
 
-    # 
+    # Model
     peft_config = PromptTuningConfig(
         task_type="SEQ_CLS", 
         num_virtual_tokens=10
@@ -72,6 +68,7 @@ def main():
         peft_config
     )
 
+    # Lightning module
     net = SentimentAnalysisNet(
         model,
         label_smoothing=0.05,
@@ -81,7 +78,7 @@ def main():
     )
 
     trainer = L.Trainer(
-        max_epochs=3,
+        max_epochs=20,
         callbacks=[
             ModelSummary(max_depth=5), 
             LearningRateMonitor(logging_interval='step'),
@@ -92,8 +89,8 @@ def main():
         log_every_n_steps=100,
         accelerator="gpu",
     )
-    # print("start training...")
-    # trainer.fit(model=net, datamodule=dm)
+    print("start training...")
+    trainer.fit(model=net, datamodule=dm)
     trainer.validate(net, dm.val_dataloader())
 
     print("start prediction...")
