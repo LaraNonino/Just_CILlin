@@ -14,3 +14,4 @@ tqdm
 tensorboard
 transformers
 functools
+peft
