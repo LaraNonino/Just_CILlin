@@ -96,11 +96,11 @@ def main():
     )
 
     print("prepearing datamodule...")
-    # dm1.setup("fit")
+    dm1.setup("fit")
     print("start training...")
-    # trainer1.fit(model=net1, datamodule=dm1)
+    trainer1.fit(model=net1, datamodule=dm1)
     # validate each model
-    # trainer1.validate(model=net1, datamodule=dm1)
+    trainer1.validate(model=net1, datamodule=dm1)
 
     # Model 2
     print("prepearing model 2...")
@@ -151,9 +151,9 @@ def main():
     print("prepearing datamodule...")
     dm2.setup("fit")
     print("start training...")
-    # trainer2.fit(model=net2, datamodule=dm2)
+    trainer2.fit(model=net2, datamodule=dm2)
     # validate each model
-    # trainer2.validate(model=net2, datamodule=dm2)
+    trainer2.validate(model=net2, datamodule=dm2)
 
     # Majority voting (inference)
     dm_ensemble = TwitterDataModule(
