@@ -7,10 +7,12 @@ class MajorityVotingNet(L.LightningModule): # only performs inference!
         self,
         tokenizers: list,
         nets: nn.ModuleList,
+        batch_size: int,
     ):
         super().__init__()
         self.tokenizers = tokenizers
         self.nets = nets # trained nn.Modules
+        self.batch_size = batch_size
 
     @torch.inference_mode()
     def forward(self, x):
@@ -25,5 +27,5 @@ class MajorityVotingNet(L.LightningModule): # only performs inference!
     def predict_step(self, batch, batch_idx):
         y_hat = torch.argmax(self(batch), dim=-1)
         y_hat = torch.where(y_hat >= 0.5, 1, -1)
-        ids = range(batch_idx * len(batch) + 1, (batch_idx+1) * len(batch) + 1) # ids from 1 to 10000
+        ids = range(batch_idx * self.batch_size + 1, (batch_idx+1) * self.batch_size + 1) # ids from 1 to 10000
         return torch.stack((torch.tensor(ids).cuda(), y_hat), dim=1)

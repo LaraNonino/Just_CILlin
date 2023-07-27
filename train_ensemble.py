@@ -169,7 +169,8 @@ def main():
             partial(tokenizer1, **tokenizer_kwargs),
             partial(tokenizer2, **tokenizer_kwargs)
         ], 
-        nets=nn.ModuleList([net1, net2])
+        nets=nn.ModuleList([net1, net2]),
+        batch_size=batch_size
     )
     trainer_ensemble = L.Trainer(accelerator="gpu", deterministic=True)
     predictions = trainer_ensemble.predict(net_ensemble, dm_ensemble.predict_dataloader())
