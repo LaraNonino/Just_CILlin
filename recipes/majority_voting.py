@@ -1,29 +1,25 @@
 import pytorch_lightning as L
 import torch
+import torch.nn as nn
 
 class MajorityVotingNet(L.LightningModule): # only performs inference!
     def __init__(
         self,
-        datamodules: list,  
-        nets: list,
-        trainers: list,
+        tokenizers: list,
+        nets: nn.ModuleList,
     ):
-        self.datamodules = datamodules # different datamodules for different tokenizers
+        super().__init__()
+        self.tokenizers = tokenizers
         self.nets = nets
-        self.trainers = trainers
-        for dm, net, trainer, net in zip(self.datamodules, self.nets, self.trainers):
-            # train each model
-            dm.setup("fit")
-            trainer.fit(model=net, datamodule=dm)
-            # validate each model
-            trainer.validate(model=net, datamodule=dm)
+
+    def forward(self, x):
+        predictions = torch.zeros((len(x), 2)) 
+        for t, net in zip(self.tokenizers, self.nets):
+            x = t(x)
+            y_hat = net(x)
+            predictions += y_hat
+        return predictions
     
     def predict_step(self, batch, batch_idx):
-        predictions = []
-        for dm, net in zip(self.datamodules, self.nets):
-            x = dm.tokenizer(batch)
-            y_hat = net(x)
-            predictions += [y_hat]
-        predictions = torch.stack(predictions, dim=1).sum(dim=1)
-        y_hat = torch.argmax(predictions, dim=-1)
-        return torch.stack((batch["id"], y_hat), dim=1)
+        predictions = torch.argmax(self(batch), dim=-1)
+        return torch.stack((batch["id"], predictions), dim=1)

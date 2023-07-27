@@ -7,6 +7,7 @@ import torch.nn as nn
 import os
 import csv
 from datetime import datetime
+from functools import partial
 
 from dataset.twitter_dataset import TwitterDataModule
 from recipes.sentiment_analysis import SentimentAnalysisNet
@@ -33,15 +34,16 @@ def main():
     model_name1 =  'distilbert-base-uncased' # 'distilroberta-base'
     from transformers import AutoTokenizer
 
-    tokenizer = AutoTokenizer.from_pretrained(model_name1)
+    tokenizer1 = AutoTokenizer.from_pretrained(model_name1)
+    tokenizer_kwargs = {
+        "truncation": True,
+        "padding": True,
+    }
     dm1 = TwitterDataModule(
         ["twitter-datasets/train_pos_full.txt", "twitter-datasets/train_neg_full.txt"],
         "twitter-datasets/test_data.txt",
-        tokenizer=tokenizer,
-        tokenizer_kwargs={
-            "truncation": True,
-            "padding": True,
-        },
+        tokenizer=tokenizer1,
+        tokenizer_kwargs=tokenizer_kwargs,
         batch_size=batch_size,
         num_workers=2,
         val_percentage=0.1
@@ -93,20 +95,25 @@ def main():
         accelerator="gpu",
     )
 
+    print("prepearing datamodule...")
+    dm1.setup("fit")
+    print("start training...")
+    trainer1.fit(model=net1, datamodule=dm1)
+    # validate each model
+    trainer1.validate(model=net1, datamodule=dm1)
+
     # Model 2
     print("prepearing model 2...")
     from models.transformer import TransformerClassifier
 
     model_name2 =  'distilroberta-base'
 
-    dm1 = TwitterDataModule(
+    tokenizer2 = AutoTokenizer.from_pretrained(model_name2)
+    dm2 = TwitterDataModule(
         ["twitter-datasets/train_pos_full.txt", "twitter-datasets/train_neg_full.txt"],
         "twitter-datasets/test_data.txt",
-        tokenizer=tokenizer,
-        tokenizer_kwargs={
-            "truncation": True,
-            "padding": True,
-        },
+        tokenizer=tokenizer2,
+        tokenizer_kwargs=tokenizer_kwargs,
         batch_size=batch_size,
         num_workers=2,
         val_percentage=0.1
@@ -141,15 +148,31 @@ def main():
         accelerator="gpu",
     )
 
+    print("prepearing datamodule...")
+    dm2.setup("fit")
+    print("start training...")
+    trainer2.fit(model=net2, datamodule=dm2)
+    # validate each model
+    trainer2.validate(model=net2, datamodule=dm2)
+
     # Majority voting (inference)
-    dm = TwitterDataModule(
+    dm_ensemble = TwitterDataModule(
         ["twitter-datasets/train_pos_full.txt", "twitter-datasets/train_neg_full.txt"],
         "twitter-datasets/test_data.txt",
+        batch_size=batch_size,
+        num_workers=2,
     )
-    dm.setup("predict") # only setup predict data
-    net = MajorityVotingNet(datamodules=[dm1, dm2], nets=[net1, net2], trainers=[trainer1, trainer2])
-    trainer_ensemble = L.Trainer(accelerator="gpu")
-    predictions = trainer_ensemble.predict(net, dm.predict_dataloader())
+    dm_ensemble.setup("predict") # only setup predict data
+    print("setup datamodule! for prediction.")
+    net_ensemble = MajorityVotingNet(
+        tokenizers=[
+            partial(tokenizer1, **tokenizer_kwargs),
+            partial(tokenizer2, **tokenizer_kwargs)
+        ], 
+        nets=nn.ModuleList([net1, net2])
+    )
+    trainer_ensemble = L.Trainer(accelerator="gpu", deterministic=True)
+    predictions = trainer_ensemble.predict(net_ensemble, dm_ensemble.predict_dataloader())
 
     path = 'predictions/{}'.format(timestamp('%d-%m-%Y-%H:%M:%S'))
     os.makedirs(path, exist_ok=True)

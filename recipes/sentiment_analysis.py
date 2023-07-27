@@ -28,8 +28,8 @@ class SentimentAnalysisNet(L.LightningModule):
             )
 
     def forward(self, x):
-        output = self.model(x)
-        return output
+        y_hat = self.model(x)
+        return y_hat
     
     def training_step(self, batch, batch_idx):
         x, y = batch
