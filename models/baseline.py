@@ -46,8 +46,8 @@ class BiRNNBaseline(RNNClassifier):
 
     def forward(self, x):
         # x: (batch_size, seq_len, embed_size)
-        x, _ = self.rnn(x) # x: (batch_size, 2 * hidden_size)
-        x = torch.cat((x[0], x[-1]), dim=1) # (batch_size, 4 * hidden_size)
+        x, _ = self.rnn(x) # x: (batch_size, seq_len, 2 * hidden_size)
+        x = torch.cat((x[:, 0], x[:, -1]), dim=1) # (batch_size, 4 * hidden_size)
         x = self.classifier(x) # (batch_size, 2)
         return x
 

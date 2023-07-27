@@ -93,11 +93,13 @@ def main():
 
     # Baselines
     from models.baseline import CNNBaseline, BiRNNBaseline
-    model = CNNBaseline(
-        embed_size=200,
-        kernel_sizes=[3, 4, 5],
-        num_channels=[100, 100, 100]
-    )
+    # model = CNNBaseline(
+    #     embed_size=200,
+    #     kernel_sizes=[3, 4, 5],
+    #     num_channels=[100, 100, 100]
+    # )
+    model = BiRNNBaseline(embed_size=200)
+
     # from models.bert import CRNNBert
     # model = CRNNBertModel(pretrained_model_name=PRETRAINED_MODEL_NAME)
 
