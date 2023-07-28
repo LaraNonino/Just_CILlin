@@ -81,9 +81,11 @@ class TwitterDataModule(L.LightningDataModule):
         return tweets
     
     def _split_dataset(self, tweets, labels):
-        np.random.seed(1)
+        np.random.seed(42)
+
         shuffled_indices = np.random.permutation(len(tweets))
         split = int((1 - self.val_percentage) * len(tweets))
+
         train_indices = shuffled_indices[:split]
         val_indices = shuffled_indices[split:]
 
@@ -96,11 +98,13 @@ class TwitterDataModule(L.LightningDataModule):
         # tokenize
         if self.tokenizer:
             X = self.tokenizer(X, **self.tokenizer_kwargs)
+
         # extract features
         if self.convert_to_features:
             X = self.convert_to_features(X, **self.convert_to_features_kwargs) 
         if isinstance(X, csr_matrix): # CountVectorizer
             X = torch.from_numpy(X.todense()).float()
+
         # dataset 
         if isinstance(X, BatchEncoding) : # bert encodings
             if y is not None:
@@ -112,6 +116,7 @@ class TwitterDataModule(L.LightningDataModule):
                 dataset = _Dataset(X, y)
             else:
                 dataset = _PredictDataset(X)
+        
         return dataset
 
 class _Dataset(Dataset):
