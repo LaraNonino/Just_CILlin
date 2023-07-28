@@ -3,7 +3,7 @@ import torch.nn as nn
 
 from transformers import AutoModelForSequenceClassification
 
-from typing import Union
+from typing import Union, Callable
 
 from peft import (
     get_peft_model,

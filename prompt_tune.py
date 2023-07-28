@@ -30,7 +30,7 @@ def main():
     L.seed_everything(42, workers=True)
     batch_size = 256
 
-    model_name = 'vinai/bertweet-base'
+    model_name = 'roberta-large'
     if any(k in model_name for k in ("gpt", "opt", "bloom")):
         padding_side = "left"
     else:
@@ -66,7 +66,7 @@ def main():
     )
     model = PTunedlassifier(
         model_name,
-        peft_config
+        peft_config,
     )
 
     # Lightning module
@@ -79,7 +79,7 @@ def main():
     )
 
     trainer = L.Trainer(
-        max_epochs=1,
+        max_epochs=10,
         callbacks=[
             ModelSummary(max_depth=5), 
             LearningRateMonitor(logging_interval='step'),
