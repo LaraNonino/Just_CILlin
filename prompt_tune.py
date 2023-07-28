@@ -50,7 +50,7 @@ def main():
         "twitter-datasets/test_data.txt",
         tokenizer=tokenizer,
         tokenizer_kwargs=tokenizer_kwargs,
-        collate_fn=DataCollatorWithPadding(tokenizer=tokenizer, padding="longest"), # partial(tokenizer.pad, padding="longest", return_tensors="pt"),
+        collate_fn=partial(tokenizer.pad, padding="longest", return_tensors="pt"),
         batch_size=batch_size,
         num_workers=2,
         val_percentage=0.1
