@@ -12,6 +12,7 @@ class CRNNBertModel(torch.nn.Module):
         num_channels: list=[100, 100, 100],
         embed_size_rnn: int=100,
         num_hiddens: int=100,
+        output_size_rnn: int=100,
         num_layers: int=2,
     ):
         super().__init__()
@@ -20,11 +21,11 @@ class CRNNBertModel(torch.nn.Module):
         self.cnn = CNN1d(embed_size=embed_size_cnn, kernel_sizes=kernel_sizes, num_channels=num_channels, output_size=embed_size_rnn)
         self.cnn.apply(init_weights)
 
-        self.rnn = BiRNN(embed_size=embed_size_rnn, num_hiddens=num_hiddens, num_layers=num_layers)
+        self.rnn = BiRNN(embed_size=embed_size_rnn, num_hiddens=num_hiddens, num_layers=num_layers, output_size=output_size_rnn)
         self.rnn.apply(init_weights)
 
         self.dropout = torch.nn.Dropout(0.3)
-        self.classifier = torch.nn.Linear(num_hiddens, 2)
+        self.classifier = torch.nn.Linear(output_size_rnn, 2)
 
     def forward(self, x):
         # x: dict
@@ -40,19 +41,20 @@ class CRNNBertModel(torch.nn.Module):
         return output
 
 class BiRNN(torch.nn.Module):
-    def __init__(self, embed_size, num_hiddens, num_layers):
+    def __init__(self, embed_size, num_hiddens, num_layers, output_size):
         super().__init__()
         self.encoder = torch.nn.LSTM(embed_size, num_hiddens, num_layers=num_layers, bidirectional=True)
-        self.decoder = torch.nn.Linear(4 * num_hiddens, num_hiddens)
+        self.decoder = torch.nn.Linear(4 * num_hiddens, output_size)
 
     def forward(self, x):
-        x = torch.permute(x, (1, 0, 2))
-
+        # x: (batch_size, seq_len, embed_size)
+        x = torch.permute(x, (1, 0, 2)) # x: (seq_len, batch_size, embed_size)
+        
         encoding, _ = self.encoder(x)
-        encoding = torch.cat((x[0], x[-1]), dim=1) # initial and final time steps
+        encoding = torch.cat((encoding[0], encoding[-1]), dim=1) # initial and final time steps
 
         output = self.decoder(encoding)
-        output = torch.permute(output, (0, 1))
+        output = torch.permute(output, (0, 1)) # output: (batch_size, output_size)
 
         return output
 
@@ -73,11 +75,12 @@ class CNN1d(torch.nn.Module):
     def forward(self, x):
         # x: (batch_size, seq_len, embed_size)
         x = x.permute(0, 2, 1) # x: (batch_size, embed_size, seq_len)
+        
         encoding = torch.cat([
             torch.squeeze(self.relu(conv(x)), dim=-1)
             for conv in self.convs], dim=1)
-        
         encoding = encoding.permute(0, 2, 1)
-        output = self.decoder(self.dropout(encoding))
+
+        output = self.decoder(self.dropout(encoding)) # output: (batch_size, seq_len, output_size)
         
         return output
