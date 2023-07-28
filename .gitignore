@@ -16,3 +16,4 @@ environment.yml
 cilenv
 script.sh
 job_train.out
+checkpoints
