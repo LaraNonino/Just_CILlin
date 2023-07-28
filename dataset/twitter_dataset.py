@@ -163,7 +163,7 @@ class _TransformerPredictDataset(Dataset):
     
 
 def collate_wrapper_transformer_dataset(batch, collate_fn=None):
-    return_labels = isinstance(first, tuple): # train dataset: (x, y)
+    return_labels = isinstance(first, tuple) # train dataset: (x, y)
     first = batch[0][0] if return_labels else batch[0] # predict dataset: x
     X = defaultdict(list)
     for k, v in first.item():
