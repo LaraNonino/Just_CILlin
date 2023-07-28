@@ -1,7 +1,6 @@
 twitter-datasets/
 .DS_Store
 __pycache__/
-lightning_logs/
 .ipynb_checkpoints
 cil.*
 jupyter.*
