@@ -23,6 +23,9 @@ PRETRAINED_MODEL_NAME = 'distilbert-base-uncased'
 def main():
     L.seed_everything(42, workers=True)
 
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    print('Using {} device'.format(device))
+
     # 1. Dataset
     # Use BERT transformer embeddings
 
@@ -63,37 +66,37 @@ def main():
         max_epochs=N_EPOCHS,
         callbacks=[
             ModelSummary(max_depth=3), 
-            LearningRateMonitor(logging_interval='step'),
+            # LearningRateMonitor(logging_interval='step'),
             ModelCheckpoint(save_top_k=3, monitor='val_loss'),
-            EarlyStopping(monitor="val_loss", mode="min")
+            # EarlyStopping(monitor="val_loss", mode="min")
         ],
         deterministic=True, 
         log_every_n_steps=100,
-        accelerator="gpu",
+        accelerator=device,
     )
 
     print("Start training...")
-    trainer.fit(model=net, datamodule=dm)
+    trainer.fit(net, dm.train_dataloader(), dm.val_dataloader())
     print("Finished training")
     trainer.validate(net, dm.val_dataloader())
 
     # 5. Predict
 
-    dm.setup(stage="predict")
+    # dm.setup(stage="predict")
 
-    # net = SentimentAnalysisNet.load_from_checkpoint(
-    #     "lightning_logs/version_22136887/checkpoints/epoch=3-step=140628.ckpt",
-    #     model,
-    #     # lr=2e-5,
-    #     # sched_step_size=1, # every half an epoch 
-    #     # sched_gamma=0.5,
-    # )
+    # # net = SentimentAnalysisNet.load_from_checkpoint(
+    # #     "lightning_logs/version_22136887/checkpoints/epoch=3-step=140628.ckpt",
+    # #     model,
+    # #     # lr=2e-5,
+    # #     # sched_step_size=1, # every half an epoch 
+    # #     # sched_gamma=0.5,
+    # # )
 
-    print("Start prediction...")
-    predictions = trainer.predict(net, dm.predict_dataloader())
-    path = 'predictions/{}'.format(timestamp('%d-%m-%Y-%H:%M:%S'))
-    os.makedirs(path, exist_ok=True)
-    save_predictions(torch.vstack(predictions), os.path.join(path, 'predictions.csv'))
+    # print("Start prediction...")
+    # predictions = trainer.predict(net, dm.predict_dataloader())
+    # path = 'predictions/{}'.format(timestamp('%d-%m-%Y-%H:%M:%S'))
+    # os.makedirs(path, exist_ok=True)
+    # save_predictions(torch.vstack(predictions), os.path.join(path, 'predictions.csv'))
     
     print("Finished!")
 
