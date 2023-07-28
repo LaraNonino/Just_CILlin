@@ -50,7 +50,7 @@ def main():
         "twitter-datasets/test_data.txt",
         tokenizer=tokenizer,
         tokenizer_kwargs=tokenizer_kwargs,
-        collate_fn=partial(tokenizer.pad, padding="longest", return_tensors="pt"),
+        collate_fn=lambda X, y: (tokenizer.pad(X, padding="longest", return_tensors="pt"), y),
         batch_size=batch_size,
         num_workers=2,
         val_percentage=0.1
@@ -59,14 +59,16 @@ def main():
     print("data module set up.")
 
     # Model
-    peft_config = PromptTuningConfig(
-        task_type="SEQ_CLS", 
-        num_virtual_tokens=10
-    )
-    model = PTunedlassifier(
-        model_name,
-        peft_config
-    )
+    # peft_config = PromptTuningConfig(
+    #     task_type="SEQ_CLS", 
+    #     num_virtual_tokens=10
+    # )
+    # model = PTunedlassifier(
+    #     model_name,
+    #     peft_config
+    # )
+    from models.baseline import RNNClassifier
+    model = RNNClassifier
 
     # Lightning module
     net = SentimentAnalysisNet(
@@ -78,7 +80,7 @@ def main():
     )
 
     trainer = L.Trainer(
-        max_epochs=20,
+        max_epochs=1,
         callbacks=[
             ModelSummary(max_depth=5), 
             LearningRateMonitor(logging_interval='step'),
