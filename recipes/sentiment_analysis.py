@@ -8,8 +8,8 @@ class SentimentAnalysisNet(L.LightningModule):
     def __init__(
         self, 
         model: nn.Module,
-        label_smoothing: float=0.1,
-        lr: float=10e-3,
+        label_smoothing: float=0,
+        lr: float=1e-3,
         sched_step_size: int=None,
         sched_gamma: float=None,
     ):
@@ -49,7 +49,7 @@ class SentimentAnalysisNet(L.LightningModule):
     def predict_step(self, batch, batch_idx):
         y_hat = torch.argmax(self(batch), dim=-1)
         y_hat = torch.where(y_hat >= 0.5, 1, -1) # pos: +1, neg: -1
-        return torch.stack((batch["id"], y_hat), dim=1) # TODO: sistema anche per non bert
+        return torch.stack((batch["id"], y_hat), dim=1)
     
     def configure_optimizers(self):
         if self.scheduler is not None:

@@ -12,3 +12,5 @@ wandb/
 trained_models/
 out/
 predictions/
+commands.txt
+environment.yml
