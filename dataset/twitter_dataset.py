@@ -6,7 +6,7 @@ from transformers.tokenization_utils_base import BatchEncoding
 
 import numpy as np
 from typing import List, Dict, Callable, Union
-from functools import partial
+from collections import defaultdict
 
 from scipy.sparse._csr import csr_matrix
 
@@ -160,3 +160,16 @@ class _PredictBertDataset(Dataset):
         item = {key: torch.tensor(val[i]) for key, val in self.encodings.items()}
         item["id"] = torch.tensor(i+1, dtype=torch.long) # from 1 to 10000
         return item
+    
+
+def collate_wrapper(batch, collate_fn=None):
+    X = defaultdict(list)
+    Y = []
+    for x, y in batch:
+      for k, v in x.items():
+        X[k].append(v)
+      Y.append(y)
+    if collate_fn:
+        X = collate_fn(X)
+    Y = torch.stack(Y).long()
+    return X, Y
