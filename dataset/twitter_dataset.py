@@ -104,9 +104,9 @@ class TwitterDataModule(L.LightningDataModule):
         # dataset 
         if isinstance(X, BatchEncoding) : # bert encodings
             if y is not None:
-                dataset = _BertDataset(X, y)
+                dataset = _TransformerDataset(X, y)
             else: 
-                dataset = _PredictBertDataset(X)
+                dataset = _TransformerPredictDataset(X)
         else: # train_X, val_X: torch.tensor or np.array
             if y is not None:
                 dataset = _Dataset(X, y)
@@ -135,7 +135,7 @@ class _PredictDataset(Dataset):
     def __getitem__(self, i):
         return self.X[i]
     
-class _BertDataset(Dataset):
+class _TransformerDataset(Dataset):
     def __init__(self, encodings, labels):
         self.encodings = encodings
         self.labels = labels
@@ -149,7 +149,7 @@ class _BertDataset(Dataset):
         item["labels"] = label # add labels to pass to bert model
         return item, label
 
-class _PredictBertDataset(Dataset):
+class _TransformerPredictDataset(Dataset):
     def __init__(self, encodings):
         self.encodings = encodings 
 
@@ -162,14 +162,22 @@ class _PredictBertDataset(Dataset):
         return item
     
 
-def collate_wrapper(batch, collate_fn=None):
+def collate_wrapper_transformer_dataset(batch, collate_fn=None):
     X = defaultdict(list)
-    Y = []
-    for x, y in batch:
-      for k, v in x.items():
-        X[k].append(v)
-      Y.append(y)
+    if isinstance(batch[0], tuple): # train dataset: (x, y)
+        Y = []
+        for x, y in batch:
+            for k, v in x.items():
+                X[k].append(v)
+            Y.append(y)
+        if collate_fn:
+            X = collate_fn(X)
+        Y = torch.stack(Y).long()
+        return X, Y
+    # predict dataset
+    for x in batch:
+        for k, v in x.items():
+            X[k].append(v)
     if collate_fn:
         X = collate_fn(X)
-    Y = torch.stack(Y).long()
-    return X, Y
+    return X

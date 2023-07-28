@@ -3,7 +3,7 @@ from pytorch_lightning.callbacks import ModelSummary, LearningRateMonitor, Model
 
 import torch
 import torch.nn as nn
-from transformers import AutoTokenizer, DataCollatorWithPadding
+from transformers import AutoTokenizer
 from peft import PromptTuningConfig, PrefixTuningConfig, PromptEncoderConfig
 
 import os
@@ -11,7 +11,7 @@ import csv
 from datetime import datetime
 from functools import partial
 
-from dataset.twitter_dataset import TwitterDataModule
+from dataset.twitter_dataset import TwitterDataModule, collate_wrapper_transformer_dataset
 from models.p_tuning import PTunedlassifier
 from recipes.sentiment_analysis import SentimentAnalysisNet
 
@@ -45,12 +45,13 @@ def main():
         "truncation": True,
         "max_length": None,
     }
+    collate_fn = partial(collate_wrapper_transformer_dataset, collate_fn=partial(tokenizer.pad, padding="longest", return_tensors="pt"))
     dm = TwitterDataModule(
         ["twitter-datasets/train_pos_full.txt", "twitter-datasets/train_neg_full.txt"],
         "twitter-datasets/test_data.txt",
         tokenizer=tokenizer,
         tokenizer_kwargs=tokenizer_kwargs,
-        collate_fn=lambda X, y: (tokenizer.pad(X, padding="longest", return_tensors="pt"), y),
+        collate_fn=collate_fn,
         batch_size=batch_size,
         num_workers=2,
         val_percentage=0.1
