@@ -59,16 +59,14 @@ def main():
     print("data module set up.")
 
     # Model
-    # peft_config = PromptTuningConfig(
-    #     task_type="SEQ_CLS", 
-    #     num_virtual_tokens=10
-    # )
-    # model = PTunedlassifier(
-    #     model_name,
-    #     peft_config
-    # )
-    from models.baseline import RNNClassifier
-    model = RNNClassifier
+    peft_config = PromptTuningConfig(
+        task_type="SEQ_CLS", 
+        num_virtual_tokens=10
+    )
+    model = PTunedlassifier(
+        model_name,
+        peft_config
+    )
 
     # Lightning module
     net = SentimentAnalysisNet(
