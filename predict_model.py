@@ -43,7 +43,7 @@ def main(argv: Sequence[str]):
     print("Data module set up.")
 
     # 2. Load model
-    net = SentimentAnalysisNet.load_from_checkpoint(FLAGS.model, model=CRNNBertModel())
+    net = SentimentAnalysisNet.load_from_checkpoint(checkpoint_path=FLAGS.model, model=CRNNBertModel())
 
     # 3. Predict
     trainer = L.Trainer(

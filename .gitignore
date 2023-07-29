@@ -17,3 +17,4 @@ cilenv
 script.sh
 job_train.out
 checkpoints
+job_predict.out
