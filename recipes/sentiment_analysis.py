@@ -16,7 +16,7 @@ class SentimentAnalysisNet(L.LightningModule):
         super().__init__()
         self.model = model
         self.criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing)
-        self.val_accuracy = torchmetrics.Accuracy(task="binary", threshold=0.5)
+        self.accuracy = torchmetrics.Accuracy(task="binary", threshold=0.5)
         
         self.lr = lr
         self.optimizer = torch.optim.Adam(self.parameters(), lr=self.lr)
@@ -33,17 +33,24 @@ class SentimentAnalysisNet(L.LightningModule):
     def training_step(self, batch, batch_idx):
         x, y = batch
         y_hat = self(x)
+
         loss = self.criterion(y_hat, y)
+        self.accuracy.update(torch.argmax(y_hat, dim=-1), y)
+
         self.log("train_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+        self.log("val_acc", self.accuracy.compute())
+
         return loss
     
     def validation_step(self, batch, batch_idx):
         x, y = batch
         y_hat = self(x)
+
         loss = self.criterion(y_hat, y)
-        self.val_accuracy.update(torch.argmax(y_hat, dim=-1), y)
+        self.accuracy.update(torch.argmax(y_hat, dim=-1), y)
+
         self.log("val_loss", loss)
-        self.log("val_acc", self.val_accuracy.compute())
+        self.log("val_acc", self.accuracy.compute())
 
     def predict_step(self, batch, batch_idx):
         y_hat = torch.argmax(self(batch), dim=-1)
