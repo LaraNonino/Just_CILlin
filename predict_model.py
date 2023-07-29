@@ -27,11 +27,6 @@ def main(argv: Sequence[str]):
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     print('Using {} device'.format(device))
 
-    N_EPOCHS = FLAGS.n_epochs
-    BATCH_SIZE = FLAGS.batch_size
-    N_WORKERS = FLAGS.n_workers
-    MODEL_PATH = FLAGS.model
-
     # 1. Dataset
     print("Preparing data module...")
 
@@ -40,19 +35,19 @@ def main(argv: Sequence[str]):
         path_predict="twitter-datasets/test_data.txt",
         tokenizer=tokenizer,
         tokenizer_kwargs={"truncation": True, "padding": True},
-        batch_size=BATCH_SIZE,
-        num_workers=N_WORKERS
+        batch_size=FLAGS.batch_size,
+        num_workers=FLAGS.n_workers
     )
 
     dm.setup(stage="predict")
     print("Data module set up.")
 
     # 2. Load model
-    net = SentimentAnalysisNet.load_from_checkpoint(MODEL_PATH, model=CRNNBertModel())
+    net = SentimentAnalysisNet.load_from_checkpoint(FLAGS.model, model=CRNNBertModel())
 
     # 3. Predict
     trainer = L.Trainer(
-        max_epochs=N_EPOCHS,
+        max_epochs=FLAGS.n_epochs,
         callbacks=[
             ModelSummary(max_depth=3), 
             LearningRateMonitor(logging_interval='step'),
