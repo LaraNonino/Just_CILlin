@@ -12,10 +12,9 @@ from models.bert import CRNNBertModel
 from recipes.sentiment_analysis import SentimentAnalysisNet
 
 N_EPOCHS = 5
-# LR_RATE = 2e-5
-LR_RATE = 1e-3
+LR_RATE = 2e-5
 
-BATCH_SIZE = 16
+BATCH_SIZE = 256
 N_WORKERS = 2
 
 PRETRAINED_MODEL_NAME = 'distilbert-base-uncased'
@@ -33,7 +32,7 @@ def main():
 
     tokenizer = AutoTokenizer.from_pretrained(PRETRAINED_MODEL_NAME)
     dm = TwitterDataModule(
-        ["twitter-datasets/train_pos.txt", "twitter-datasets/train_neg.txt"],
+        ["twitter-datasets/train_pos_full.txt", "twitter-datasets/train_neg_full.txt"],
         "twitter-datasets/test_data.txt",
         tokenizer=tokenizer,
         tokenizer_kwargs={"truncation": True, "padding": True},
