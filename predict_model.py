@@ -57,6 +57,7 @@ def main(argv: Sequence[str]):
         deterministic=True, 
         log_every_n_steps=100,
         accelerator=device,
+        logger=False
     )
 
     print("Start prediction...")
