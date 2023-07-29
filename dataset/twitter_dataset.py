@@ -18,8 +18,8 @@ POSITIVE = 1
 class TwitterDataModule(L.LightningDataModule):
     def __init__(
         self,
-        path_train: Union[List[str], str],
-        path_predict: str,
+        path_train: Union[List[str], str]=None,
+        path_predict: str=None,
         convert_to_features: Callable=None,
         convert_to_features_kwargs: Dict=None,
         tokenizer: Callable=None,

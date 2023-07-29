@@ -9,7 +9,7 @@ class SentimentAnalysisNet(L.LightningModule):
         self, 
         model: nn.Module,
         label_smoothing: float=0,
-        lr: float=1e-3,
+        lr: float=2e-5,
         sched_step_size: int=None,
         sched_gamma: float=None,
     ):
