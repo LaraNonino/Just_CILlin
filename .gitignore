@@ -1,11 +1,8 @@
-twitter-datasets/
 .DS_Store
 __pycache__/
 .ipynb_checkpoints
-cil.*
 jupyter.*
 __MACOSX/
-wandb/
 .vector_cache/
 *.pkl
 trained_models/
@@ -16,3 +13,6 @@ script.sh
 job_train.out
 checkpoints
 job_predict.out
+src/twitter-datasets/train*
+src/twitter-datasets/test*
+src/twitter-datasets/sample*
