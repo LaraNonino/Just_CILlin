@@ -17,7 +17,7 @@ FLAGS = flags.FLAGS
 flags.DEFINE_integer('n_epochs', 5, 'Number of epochs to train.')
 flags.DEFINE_integer('batch_size', 256, 'Batch size.')
 flags.DEFINE_integer('n_workers', 2, 'Numer of workers.')
-flags.DEFINE_string('model', 'lightning_logs/crnn/checkpoints/epoch=2-step=26370.ckpt', 'Model to use for prediction.')
+flags.DEFINE_string('model', 'lightning_logs/final/checkpoints/epoch=1-step=17580.ckpt', 'Model to use for prediction.')
 
 PRETRAINED_MODEL_NAME = 'distilbert-base-uncased'
 

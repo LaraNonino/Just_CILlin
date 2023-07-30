@@ -13,6 +13,7 @@ script.sh
 job_train.out
 checkpoints
 job_predict.out
-src/twitter-datasets/train*
-src/twitter-datasets/test*
-src/twitter-datasets/sample*
+twitter-datasets/train*
+twitter-datasets/test*
+twitter-datasets/sample*
+twitter-datasets/
