@@ -27,7 +27,7 @@ Our model checkpoint is the final result of the following command:
 python src/train_model.py --n_epochs=2
 ```
 
-To obtain the predictions with our model, we provide the checkpoint file in the following this link. This checkpoint should be saved inside a folder in `lightning_logs/final/checkpoints`. To reproduce the predictions that we provide in the folder `predictions/final`, just execute the commad:
+To obtain the predictions with our model, we provide the checkpoint file in the following this [link](https://drive.google.com/file/d/1lFxrWlc5EsQ6UJ0oovd07sAGTlZFa_1M/view?usp=sharing). This checkpoint should be saved inside a folder in `lightning_logs/final/checkpoints`. To reproduce the predictions that we provide in the folder `predictions/final`, just execute the commad:
 
 ```bash
 python src/predict_model.py 
