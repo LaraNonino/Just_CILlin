@@ -33,7 +33,7 @@ def main(argv: Sequence[str]):
 
     tokenizer = AutoTokenizer.from_pretrained(PRETRAINED_MODEL_NAME)
     dm = TwitterDataModule(
-        ["twitter-datasets/train_pos_full.txt", "twitter-datasets/train_neg_full.txt"],
+        ["twitter-datasets/train_pos.txt", "twitter-datasets/train_neg.txt"],
         tokenizer=tokenizer,
         tokenizer_kwargs={"truncation": True, "padding": True},
         batch_size=FLAGS.batch_size,
