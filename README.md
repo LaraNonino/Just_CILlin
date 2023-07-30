@@ -3,7 +3,12 @@ To run the code you first need to install the required packages. A `requirements
 
 # Running different experiments
 
-We provide the different logs of the experiments in the folder alled `lightning_logs`. 
+We provide the different logs of the experiments in the folder called `lightning_logs`. 
+To execute the experiments on clean data, first execute the command:
+
+```bash
+python src/clean_data.py
+```
 
 ## Training
 
