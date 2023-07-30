@@ -16,4 +16,3 @@ job_predict.out
 twitter-datasets/train*
 twitter-datasets/test*
 twitter-datasets/sample*
-twitter-datasets/
