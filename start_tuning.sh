@@ -11,7 +11,7 @@
 #SBATCH --mail-type=BEGIN
 
 module load gcc/8.2.0 python_gpu/3.10.4 hdf5/1.10.1 eth_proxy
-# pip uninstall --yes huggingface-hub
-# pip install huggingface-hub==0.16.4 
+pip uninstall --yes huggingface-hub
+pip install huggingface-hub==0.16.4 
 # pip install peft
 python prompt_tune.py

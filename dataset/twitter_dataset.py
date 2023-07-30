@@ -163,14 +163,13 @@ class _TransformerPredictDataset(Dataset):
     
 
 def collate_wrapper_transformer_dataset(batch, collate_fn=None):
-    return_labels = isinstance(first, tuple): # train dataset: (x, y)
-    first = batch[0][0] if return_labels else batch[0] # predict dataset: x
-    X = defaultdict(list)
-    for k, v in first.item():
-        X[k] = torch.stack([x[k] for x, _ in batch])
+    return_labels = isinstance(batch[0], tuple) # train dataset: (x, y), predict dataset: x
+    if return_labels:
+        X = [x for x, _ in batch]
+        Y = torch.stack([y for _, y in batch]).long()
         if collate_fn:
             X = collate_fn(X)
-    if return_labels:
-        Y = torch.stack([y for _, y in batch]).long()
         return X, Y
-    return X
+    if collate_fn:
+        batch = collate_fn(batch)
+    return batch

@@ -30,7 +30,7 @@ def main():
     L.seed_everything(42, workers=True)
     batch_size = 256
 
-    model_name = 'roberta-large'
+    model_name = 'distilroberta-base' # 'openai-gpt' # 'distilroberta-base' # 'roberta-large'
     if any(k in model_name for k in ("gpt", "opt", "bloom")):
         padding_side = "left"
     else:
@@ -62,7 +62,9 @@ def main():
     # Model
     peft_config = PromptTuningConfig(
         task_type="SEQ_CLS", 
-        num_virtual_tokens=10
+        num_virtual_tokens=10,
+        prompt_tuning_init="TEXT",
+        prompt_tuning_init_text="Predict if tweet sentiment is positive or negative:",
     )
     model = PTunedlassifier(
         model_name,
@@ -79,7 +81,7 @@ def main():
     )
 
     trainer = L.Trainer(
-        max_epochs=10,
+        max_epochs=5,
         callbacks=[
             ModelSummary(max_depth=5), 
             LearningRateMonitor(logging_interval='step'),
