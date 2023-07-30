@@ -3,8 +3,7 @@ from typing import Sequence
 import pytorch_lightning as L
 import torch
 from absl import app, flags
-from pytorch_lightning.callbacks import (EarlyStopping, LearningRateMonitor,
-                                         ModelCheckpoint, ModelSummary)
+from pytorch_lightning.callbacks import EarlyStopping, LearningRateMonitor, ModelCheckpoint, ModelSummary
 from transformers import AutoTokenizer
 
 from dataset.twitter_dataset import TwitterDataModule
