@@ -1,16 +1,12 @@
-import pytorch_lightning as L
-
-import torch
-from torch.utils.data import Dataset, DataLoader
-from transformers.tokenization_utils_base import BatchEncoding
+from typing import Callable, Dict, List, Union
 
 import numpy as np
-from typing import List, Dict, Callable, Union
-from collections import defaultdict
-
+import pytorch_lightning as L
+import torch
 from scipy.sparse._csr import csr_matrix
-
+from torch.utils.data import DataLoader, Dataset
 from tqdm import tqdm
+from transformers.tokenization_utils_base import BatchEncoding
 
 NEGATIVE = 0
 POSITIVE = 1
@@ -165,17 +161,3 @@ class _TransformerPredictDataset(Dataset):
         item = {key: torch.tensor(val[i]) for key, val in self.encodings.items()}
         item["id"] = torch.tensor(i+1, dtype=torch.long) # from 1 to 10000
         return item
-    
-
-def collate_wrapper_transformer_dataset(batch, collate_fn=None):
-    return_labels = isinstance(first, tuple) # train dataset: (x, y)
-    first = batch[0][0] if return_labels else batch[0] # predict dataset: x
-    X = defaultdict(list)
-    for k, v in first.item():
-        X[k] = torch.stack([x[k] for x, _ in batch])
-        if collate_fn:
-            X = collate_fn(X)
-    if return_labels:
-        Y = torch.stack([y for _, y in batch]).long()
-        return X, Y
-    return X
