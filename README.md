@@ -1,10 +1,13 @@
-# Installing Dependencies
+# Setting up
 To run the code you first need to install the required packages. A `requirements.txt` file is provided.
+
+To run the exeriments, first save the dataset in a folder called `twitter_datasets`.
 
 # Running different experiments
 
 We provide the different logs of the experiments in the folder called `lightning_logs`. 
-To execute the experiments on clean data, first execute the command:
+
+To execute the experiments on clean data, first execute the following command and change the training file in the `train_model.py`:
 
 ```bash
 python src/clean_data.py
