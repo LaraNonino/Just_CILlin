@@ -1,7 +1,7 @@
 # Setting up
 To run the code you first need to install the required packages. A `requirements.txt` file is provided.
 
-To run the exeriments, first save the dataset in a folder called `twitter_datasets`.
+To run the exeriments, first save the dataset in a folder called `twitter-datasets`.
 
 # Running different experiments
 
