@@ -3,7 +3,7 @@ This project aims to perform sentiment analysis on a dataset consisting of tweet
 results obtained through simple machine learning techniques with different embeddings and compare these to a more 
 complex model centered around a state-of-the-art architecture for this kind of task, using BERT embeddings. In the 
 comparative study, we evaluate the classification accuracy of each of the models.
-The full report can be found at the following [link](https://github.com/LaraNonino/Just_CILlin/blob/3999ca2088e9148b5818c309327deece1c6cb034/.Report.pdf).
+The full report can be found at the following [link](https://github.com/LaraNonino/Just_CILlin/blob/011895ccfc1b34bca053bc6c46027ebc7dabcbe6/Report.pdf).
 # Setting up
 To run the code you first need to install the required packages. A `requirements.txt` file is provided.
 
